@@ -9,4 +9,7 @@ _input_file_name = "Churn_Modelling.csv"
 _redundant_cols = ["RowNumber", "CustomerId", "Surname"]
 
 _categorical_features = ["Geography", "Gender", "Exited", "HasCrCard", "IsActiveMember"]
+_integer_feature = []
+
+_output_col = "Exited"
 
