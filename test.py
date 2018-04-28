@@ -33,6 +33,45 @@
 #
 # print(a)
 
+# #########################################################################
+# # mld transform
+# #########################################################################
+# # print(X_train)
+#
+# # mdlp_transformer = MDLP(continuous_features= _continuous_var_index)
+# #
+# # mdlp_fit = mdlp_transformer.fit_transform(X_train,
+# #                                 y_train,)
+# #
+# # print(mdlp_fit)
+# # _temp_cont_var = _raw_data_imp_cols[_raw_data_imp_cols.columns.difference(user_input._categorical_features)]
+# # _temp_cont_var_ndarray = _temp_cont_var.as_matrix()
+# # _temp_target_ndarray = _raw_data_imp_cols["Exited"].as_matrix()
+# #
+# # # print(_temp_cont_var_ndarray)
+# # # print(_temp_target_ndarray)
+# #
+# # transformer = MDLP()
+# # cont_var_transformed_ndarray = transformer.fit_transform(_temp_cont_var_ndarray,
+# #                                    _temp_target_ndarray)
+# #
+# # _cont_var_transformed = pd.DataFrame(data=cont_var_transformed_ndarray,
+# #                                      columns= _raw_data_imp_cols.columns.difference(user_input._categorical_features)
+# #                                      .tolist())
+# # _cont_var_transformed = _cont_var_transformed.loc[:, (_cont_var_transformed != 0).any(axis=0)]
+# # _cont_var_transformed = _cont_var_transformed.apply(lambda x: x.astype("category"))
+# #
+# # # print(_cont_var_transformed.head())
+# #
+# # _binned_data = pd.concat([_cont_var_transformed.reset_index(drop=True),
+# #                           _raw_data_imp_cols[user_input._categorical_features]], axis=1)
+#
+#
+# # print(_binned_data.head())
+# # print(_binned_data.dtypes)
+# # print_categories(_binned_data, list(_binned_data))
+#
+
 import pandas as pd
 
 df = pd.DataFrame(data={'a': [1,2,3],'b': [5,6,7]})
