@@ -4,7 +4,7 @@ import _user_input as user_input
 from _plot_func import *
 from mdlp.discretization import MDLP
 from _support_func import *
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import RandomizedSearchCV
 
 
@@ -104,11 +104,11 @@ print("#######################################################\n")
 # #########################################################################
 
 # Number of trees in random forest
-n_estimators = [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)]
+n_estimators = [int(x) for x in np.linspace(start = 100, stop = 500, num = 2)]
 # Number of features to consider at every split
 max_features = ['auto', 'sqrt']
 # Maximum number of levels in tree
-max_depth = [int(x) for x in np.linspace(10, 110, num = 11)]
+max_depth = [int(x) for x in np.linspace(10, 20, num = 2)]
 max_depth.append(None)
 # Minimum number of samples required to split a node
 min_samples_split = [2, 5, 10]
@@ -124,5 +124,36 @@ random_grid = {'n_estimators': n_estimators,
                'min_samples_leaf': min_samples_leaf,
                'bootstrap': bootstrap}
 print(random_grid)
+
+# Use the random grid to search for best hyperparameters
+# First create the base model to tune
+rf = RandomForestClassifier()
+# Random search of parameters, using 3 fold cross validation,
+# search across 100 different combinations, and use all available cores
+rf_random = RandomizedSearchCV(estimator = rf, param_distributions = random_grid, n_iter = 100, cv = 3, verbose=2, random_state=42, scoring= 'f1')
+# Fit the random search model
+rf_random.fit(X_train_oneHotEncoded, y_train['Exited'])
+
+# {'n_estimators': 100, 'min_samples_split': 2, 'min_samples_leaf': 4, 'max_features': 'sqrt', 'max_depth': 10, 'bootstrap': False}
+
+print(rf_random.best_params_)
+print(rf_random.best_score_)
+print(rf_random.cv_results_)
+# print(rf_random.grid_scores_)
+
+# rf = RandomForestClassifier(n_estimators= 100, min_samples_split= 2, min_samples_leaf= 4, max_features= 'sqrt',
+#                             max_depth= 10, bootstrap= False)
+#
+# model_rf = rf.fit(X_train_oneHotEncoded, y_train['Exited'])
+#
+# from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+#
+# print(accuracy_score(y_test['Exited'],rf.predict(X_test_oneHotEncoded)))
+#
+# print(confusion_matrix(y_test['Exited'],rf.predict(X_test_oneHotEncoded)))
+#
+#
+# print(classification_report(y_test['Exited'],rf.predict(X_test_oneHotEncoded)))
+
 
 
