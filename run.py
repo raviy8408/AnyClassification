@@ -6,6 +6,7 @@ from mdlp.discretization import MDLP
 from _support_func import *
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import RandomizedSearchCV
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, cohen_kappa_score
 
 
 #########################################################################
@@ -103,57 +104,43 @@ print("#######################################################\n")
 # # model building
 # #########################################################################
 
-# Number of trees in random forest
-n_estimators = [int(x) for x in np.linspace(start = 100, stop = 500, num = 2)]
-# Number of features to consider at every split
-max_features = ['auto', 'sqrt']
-# Maximum number of levels in tree
-max_depth = [int(x) for x in np.linspace(10, 20, num = 2)]
-max_depth.append(None)
-# Minimum number of samples required to split a node
-min_samples_split = [2, 5, 10]
-# Minimum number of samples required at each leaf node
-min_samples_leaf = [1, 2, 4]
-# Method of selecting samples for training each tree
-bootstrap = [True, False]
-# Create the random grid
-random_grid = {'n_estimators': n_estimators,
-               'max_features': max_features,
-               'max_depth': max_depth,
-               'min_samples_split': min_samples_split,
-               'min_samples_leaf': min_samples_leaf,
-               'bootstrap': bootstrap}
-print(random_grid)
+random_grid = {'n_estimators': user_input.n_estimators,
+               'max_features': user_input.max_features,
+               'max_depth': user_input.max_depth,
+               'min_samples_split': user_input.min_samples_split,
+               'min_samples_leaf': user_input.min_samples_leaf,
+               'bootstrap': user_input.bootstrap}
+
+# print(random_grid)
 
 # Use the random grid to search for best hyperparameters
 # First create the base model to tune
 rf = RandomForestClassifier()
-# Random search of parameters, using 3 fold cross validation,
+# Random search of parameters, using n fold cross validation,
 # search across 100 different combinations, and use all available cores
-rf_random = RandomizedSearchCV(estimator = rf, param_distributions = random_grid, n_iter = 100, cv = 3, verbose=2, random_state=42, scoring= 'f1')
+rf_random = RandomizedSearchCV(estimator = rf, param_distributions = random_grid,
+                               n_iter = user_input.n_iter, cv = user_input.cv, verbose=user_input.verbose,
+                               random_state=42, scoring= user_input.scoring)
 # Fit the random search model
-rf_random.fit(X_train_oneHotEncoded, y_train['Exited'])
+print(str(user_input.cv) + "-Fold CV in Progress...")
+rf_random.fit(X_train_oneHotEncoded, y_train[user_input._output_col])
 
-# {'n_estimators': 100, 'min_samples_split': 2, 'min_samples_leaf': 4, 'max_features': 'sqrt', 'max_depth': 10, 'bootstrap': False}
-
-print(rf_random.best_params_)
+print("Best " + user_input.scoring + " Score Obtained:")
 print(rf_random.best_score_)
-print(rf_random.cv_results_)
+print("Best Model Parameter Set for Highest " + user_input.scoring + ":\n")
+print(rf_random.best_params_)
+
+# print(rf_random.cv_results_)
 # print(rf_random.grid_scores_)
 
-# rf = RandomForestClassifier(n_estimators= 100, min_samples_split= 2, min_samples_leaf= 4, max_features= 'sqrt',
-#                             max_depth= 10, bootstrap= False)
-#
-# model_rf = rf.fit(X_train_oneHotEncoded, y_train['Exited'])
-#
-# from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
-#
-# print(accuracy_score(y_test['Exited'],rf.predict(X_test_oneHotEncoded)))
-#
-# print(confusion_matrix(y_test['Exited'],rf.predict(X_test_oneHotEncoded)))
-#
-#
-# print(classification_report(y_test['Exited'],rf.predict(X_test_oneHotEncoded)))
-
-
-
+print("Model Performance on Test Set:\n")
+print("Accuracy:\n")
+print(str(accuracy_score(y_test[user_input._output_col],rf_random.best_estimator_.predict(X_test_oneHotEncoded))))
+print("\nConfusion Matrix:\n")
+print(confusion_matrix(y_test[user_input._output_col],rf_random.best_estimator_.predict(X_test_oneHotEncoded)))
+print("Classification Report:\n")
+# print(classification_report(y_test[user_input._output_col],rf_random.best_estimator_.predict(X_test_oneHotEncoded)))
+print(pd.crosstab(y_test[user_input._output_col],rf_random.best_estimator_.predict(X_test_oneHotEncoded),
+                  rownames=['True'], colnames=['Predicted'], margins=True))
+print("\nCohen Kappa:\n")
+print(cohen_kappa_score(y_test[user_input._output_col], rf_random.best_estimator_.predict(X_test_oneHotEncoded)))

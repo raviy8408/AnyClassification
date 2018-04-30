@@ -13,3 +13,36 @@ _integer_features = ["CreditScore", "Age", "Tenure", "NumOfProducts"]
 
 _output_col = "Exited"
 
+################-- Random Forest Grid Search Parameters --##################
+
+import numpy as np
+
+# Number of trees in random forest
+n_estimators = [int(x) for x in np.linspace(start = 100, stop = 1000, num = 10)]
+# Number of features to consider at every split
+max_features = ['auto', 'sqrt']
+# Maximum number of levels in tree
+max_depth = [int(x) for x in np.linspace(10, 30, num = 10)]
+max_depth.append(None)
+# Minimum number of samples required to split a node
+min_samples_split = [2, 5, 10]
+# Minimum number of samples required at each leaf node
+min_samples_leaf = [1, 2, 4]
+# Method of selecting samples for training each tree
+bootstrap = [True, False]
+
+#############################-- CV Parameters --############################
+
+# Number of parameter settings that are sampled
+n_iter = 2
+# cross validation fold
+cv = 3
+# Integer value, higher the value more text is printed
+verbose=1
+# model selection criteria
+scoring= 'accuracy'
+
+############################################################################
+
+
+
