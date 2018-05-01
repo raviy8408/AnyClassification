@@ -7,11 +7,11 @@ Build binary classifier just by feeding in raw data.
 - Random Forest parameters 
 - Cross validation paramters
 
-## How the code works?
+## How does the code works?
 - Assign all the variables their respective classes 
 - Splits data into test and train 
 - Performs the one hot encoding for all the categorical variables 
-- Build the parameter set for the RF classifier 
+- Generates the parameter set for the RF classifier 
 - Performs cross validation
 - Best model is evaluated on test data
 
