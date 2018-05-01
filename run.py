@@ -34,34 +34,36 @@ _raw_data_imp_cols[_raw_data_imp_cols.columns.difference(_non_float_features)] =
     _raw_data_imp_cols.columns.difference(_non_float_features)]\
     .apply(lambda x: x.astype('float'))
 
-# print("###################--Data Head--#######################\n")
-# print(_raw_data_imp_cols.head())
-# print("\n#######################################################\n")
-# print("Outcome_Variable:" + user_input._output_col)
-# print("\n###################--Column Types--####################\n")
-# print(_raw_data_imp_cols.dtypes)
-# print("#######################################################\n")
+print("###################--Data Head--#######################\n")
+print(_raw_data_imp_cols.head())
+print("\n#######################################################\n")
+print("Outcome_Variable:" + user_input._output_col + "\n")
+print("Outcome Class Distribution:\n")
+print(_raw_data_imp_cols[user_input._output_col].value_counts())
+print("\n###################--Column Types--####################\n")
+print(_raw_data_imp_cols.dtypes)
+print("#######################################################\n")
 
 #########################################################################
 # data visualization
 #########################################################################
 
-# print("################--Column Description--##################\n")
-# print(_raw_data_imp_cols.describe(include = ["float"]))
-# print(_raw_data_imp_cols.describe(include = ["int64"]))
-# print(_raw_data_imp_cols.describe(include = ["category"]))
-# print("########################################################")
-#
-# # print the categories of categorical variable
-# print_categories(_raw_data_imp_cols, user_input._categorical_features + [user_input._output_col])
-# # _raw_data_imp_cols.select_dtypes(include=['category']).apply(lambda x: print(pd.unique(x)))
-#
-# # save histogram plots of all categorical variables to data directory
-# print("Saving Numerical Variable Histogram to Working Directory...")
-# for col in (set(list(_raw_data_imp_cols)) - set(user_input._categorical_features)):
-#     plt_hist(x= _raw_data_imp_cols[col], colname= col, n_bin= 20, dir_name= user_input._data_dir)
-# print("Completed!\n")
-# print("#######################################################\n")
+print("################--Column Description--##################\n")
+print(_raw_data_imp_cols.describe(include = ["float"]))
+print(_raw_data_imp_cols.describe(include = ["int64"]))
+print(_raw_data_imp_cols.describe(include = ["category"]))
+print("########################################################")
+
+# print the categories of categorical variable
+print_categories(_raw_data_imp_cols, user_input._categorical_features + [user_input._output_col])
+# _raw_data_imp_cols.select_dtypes(include=['category']).apply(lambda x: print(pd.unique(x)))
+
+# save histogram plots of all categorical variables to data directory
+print("Saving Numerical Variable Histogram to Working Directory...")
+for col in (set(list(_raw_data_imp_cols)) - set(user_input._categorical_features)):
+    plt_hist(x= _raw_data_imp_cols[col], colname= col, n_bin= 20, dir_name= user_input._data_dir)
+print("Completed!\n")
+print("#########################################################\n")
 
 #########################################################################
 # test train split
@@ -109,7 +111,8 @@ random_grid = {'n_estimators': user_input.n_estimators,
                'max_depth': user_input.max_depth,
                'min_samples_split': user_input.min_samples_split,
                'min_samples_leaf': user_input.min_samples_leaf,
-               'bootstrap': user_input.bootstrap}
+               'bootstrap': user_input.bootstrap,
+               'class_weight': user_input.class_weight}
 
 # print(random_grid)
 
@@ -125,22 +128,27 @@ rf_random = RandomizedSearchCV(estimator = rf, param_distributions = random_grid
 print(str(user_input.cv) + "-Fold CV in Progress...")
 rf_random.fit(X_train_oneHotEncoded, y_train[user_input._output_col])
 
+print("\nCV Result:\n")
 print("Best " + user_input.scoring + " Score Obtained:")
 print(rf_random.best_score_)
 print("Best Model Parameter Set for Highest " + user_input.scoring + ":\n")
 print(rf_random.best_params_)
 
+print("#######################################################\n")
+
 # print(rf_random.cv_results_)
 # print(rf_random.grid_scores_)
 
-print("Model Performance on Test Set:\n")
+print("\nModel Performance on Test Set:\n")
 print("Accuracy:\n")
 print(str(accuracy_score(y_test[user_input._output_col],rf_random.best_estimator_.predict(X_test_oneHotEncoded))))
 print("\nConfusion Matrix:\n")
-print(confusion_matrix(y_test[user_input._output_col],rf_random.best_estimator_.predict(X_test_oneHotEncoded)))
-print("Classification Report:\n")
-# print(classification_report(y_test[user_input._output_col],rf_random.best_estimator_.predict(X_test_oneHotEncoded)))
+# print(confusion_matrix(y_test[user_input._output_col],rf_random.best_estimator_.predict(X_test_oneHotEncoded)))
 print(pd.crosstab(y_test[user_input._output_col],rf_random.best_estimator_.predict(X_test_oneHotEncoded),
                   rownames=['True'], colnames=['Predicted'], margins=True))
+print("\nClassification Report:\n")
+print(classification_report(y_test[user_input._output_col],rf_random.best_estimator_.predict(X_test_oneHotEncoded)))
 print("\nCohen Kappa:\n")
 print(cohen_kappa_score(y_test[user_input._output_col], rf_random.best_estimator_.predict(X_test_oneHotEncoded)))
+
+print("#######################################################\n")
