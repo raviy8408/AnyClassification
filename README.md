@@ -15,6 +15,10 @@ Build binary classifier just by feeding in raw data.
 - Performs cross validation
 - Best model is evaluated on test data
 
+## How to use it?
+- Privide all the inputs in _user_input.py file
+- Run the run.py file
+
 ### Note: 
 - Currently only RF classifier is being used, other models would be added in future 
 - Users are advisable to provide trasnformed nurerical variables in the input data, there is no continuous variable tranformation done in the code as the there could be different kind of data transformation required depending on the data
