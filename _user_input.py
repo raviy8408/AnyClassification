@@ -37,7 +37,7 @@ class_weight.append(None)
 #############################-- CV Parameters --############################
 
 # Number of parameter settings that are sampled
-n_iter = 10
+n_iter = 100
 # cross validation fold
 cv = 5
 # Integer value, higher the value more text is printed

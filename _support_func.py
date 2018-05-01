@@ -61,6 +61,7 @@ def test_train_splitter(df, y, cat_feature_list, int_feature_list, outcome_type=
 
     return X_train_df, y_train_df, X_test_df, y_test_df
 
+
 def labelEncoder_cat_features(X_train, X_test, cat_feature_list):
     '''
     Converts all categorical features to numerical levels
@@ -86,6 +87,7 @@ def labelEncoder_cat_features(X_train, X_test, cat_feature_list):
             X_test[col] = le.transform(X_test[col])
 
     return X_train, X_test
+
 
 def oneHotEncoder_cat_features(X_train_labelEncoded, X_test_labelEncoded, cat_feature_list):
     '''
@@ -114,7 +116,7 @@ def oneHotEncoder_cat_features(X_train_labelEncoded, X_test_labelEncoded, cat_fe
             temp = pd.DataFrame(temp, columns=[(col + "_" + str(i)) for i in data[col]
                                 .value_counts().index])
         else:
-            temp = pd.DataFrame(temp[:,:-1], columns=[(col + "_" + str(i)) for i in data[col]
+            temp = pd.DataFrame(temp[:, :-1], columns=[(col + "_" + str(i)) for i in data[col]
                                 .value_counts().index[:-1]])
         # In side by side concatenation index values should be same
         # Setting the index values similar to the X_train data frame
@@ -129,7 +131,7 @@ def oneHotEncoder_cat_features(X_train_labelEncoded, X_test_labelEncoded, cat_fe
             temp = pd.DataFrame(temp, columns=[(col + "_" + str(i)) for i in data[col]
                                 .value_counts().index])
         else:
-            temp = pd.DataFrame(temp[:,:-1], columns=[(col + "_" + str(i)) for i in data[col]
+            temp = pd.DataFrame(temp[:, :-1], columns=[(col + "_" + str(i)) for i in data[col]
                                 .value_counts().index[:-1]])
         # Setting the index for proper concatenation
         temp = temp.set_index(X_test_labelEncoded.index.values)
@@ -137,7 +139,3 @@ def oneHotEncoder_cat_features(X_train_labelEncoded, X_test_labelEncoded, cat_fe
         X_test_oneHotEncoded = pd.concat([X_test_oneHotEncoded, temp], axis=1)
 
     return X_train_oneHotEncoded, X_test_oneHotEncoded
-
-
-
-
