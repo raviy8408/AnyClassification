@@ -2,7 +2,7 @@
 Build binary classifier just by feeding in raw data.
 
 ## User need to provide following input:
-- Raw Data
+- Raw Data(should not have Nas)
 - Numeric, Integer and categorical variables
 - Random Forest parameters 
 - Cross validation paramters
