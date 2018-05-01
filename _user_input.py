@@ -18,16 +18,16 @@ _output_col = "Exited"
 import numpy as np
 
 # Number of trees in random forest
-n_estimators = [int(x) for x in np.linspace(start = 50, stop = 1000, num = 10)]
+n_estimators = [int(x) for x in np.linspace(start = 20, stop = 1000, num = 50)]
 # Number of features to consider at every split
 max_features = ['auto', 'sqrt']
 # Maximum number of levels in tree
-max_depth = [int(x) for x in np.linspace(10, 30, num = 10)]
+max_depth = [int(x) for x in np.linspace(4, 50, num = 20)]
 max_depth.append(None)
 # Minimum number of samples required to split a node
-min_samples_split = [2, 5, 10, 20]
+min_samples_split = [2, 5, 10, 20, 30]
 # Minimum number of samples required at each leaf node
-min_samples_leaf = [1, 2, 4]
+min_samples_leaf = [1, 2, 4, 6, 8, 10, 15]
 # Method of selecting samples for training each tree
 bootstrap = [True, False]
 # Different sampling options to treat imbalanced data
@@ -37,12 +37,14 @@ class_weight.append(None)
 #############################-- CV Parameters --############################
 
 # Number of parameter settings that are sampled
-n_iter = 100
+n_iter = 2
 # cross validation fold
 cv = 5
 # Integer value, higher the value more text is printed
 verbose=3
 # model selection criteria
+# choose from ‘accuracy’, ‘average_precision’,‘f1’, ‘f1_micro’, ‘f1_macro’, ‘f1_weighted’, ‘f1_samples’,‘neg_log_loss’,
+# ‘precision’ etc., ‘recall’ etc., roc_auc’
 scoring= 'f1_weighted'
 
 ############################################################################

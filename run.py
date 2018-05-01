@@ -90,7 +90,8 @@ X_train_labelEncoded, X_test_labelEncoded = labelEncoder_cat_features(X_train=X_
 
 X_train_oneHotEncoded, X_test_oneHotEncoded = oneHotEncoder_cat_features(X_train_labelEncoded=X_train_labelEncoded,
                                                                          X_test_labelEncoded=X_test_labelEncoded,
-                                                                         cat_feature_list=user_input._categorical_features)
+                                                                         cat_feature_list=user_input._categorical_features,
+                                                                         drop_last= True)
 
 print("sample One Hot Encoded Data:\n")
 print(X_train_oneHotEncoded.head())
@@ -135,12 +136,12 @@ print(rf_random.best_score_)
 print("Best Model Parameter Set for Highest " + user_input.scoring + ":\n")
 print(rf_random.best_params_)
 
-print("#######################################################\n")
+print("\n#######################################################\n")
 
 # print(rf_random.cv_results_)
 # print(rf_random.grid_scores_)
 
-print("\nModel Performance on Test Set:\n")
+print("Model Performance on Test Set:\n")
 print("Accuracy:\n")
 print(str(accuracy_score(y_test[user_input._output_col], rf_random.best_estimator_.predict(X_test_oneHotEncoded))))
 print("\nConfusion Matrix:\n")

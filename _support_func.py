@@ -89,7 +89,7 @@ def labelEncoder_cat_features(X_train, X_test, cat_feature_list):
     return X_train, X_test
 
 
-def oneHotEncoder_cat_features(X_train_labelEncoded, X_test_labelEncoded, cat_feature_list):
+def oneHotEncoder_cat_features(X_train_labelEncoded, X_test_labelEncoded, cat_feature_list, drop_last=False):
     '''
     creates one hot encoded data frame
     :param X_train_labelEncoded: label encoded train data frame
@@ -112,10 +112,10 @@ def oneHotEncoder_cat_features(X_train_labelEncoded, X_test_labelEncoded, cat_fe
         temp = enc.transform(X_train_labelEncoded[[col]])
         # Changing the encoded features into a data frame with new column names
         # if number of categorical levels is less than 3, keep only one column
-        if len(data[col].value_counts().index) >= 3:
+        if drop_last == False:
             temp = pd.DataFrame(temp, columns=[(col + "_" + str(i)) for i in data[col]
                                 .value_counts().index])
-        else:
+        elif drop_last == True:
             temp = pd.DataFrame(temp[:, :-1], columns=[(col + "_" + str(i)) for i in data[col]
                                 .value_counts().index[:-1]])
         # In side by side concatenation index values should be same
@@ -127,10 +127,10 @@ def oneHotEncoder_cat_features(X_train_labelEncoded, X_test_labelEncoded, cat_fe
         temp = enc.transform(X_test_labelEncoded[[col]])
         # changing it into data frame and adding column names
         # if number of categorical levels is less than 3, keep only one column
-        if len(data[col].value_counts().index) >= 3:
+        if drop_last == False:
             temp = pd.DataFrame(temp, columns=[(col + "_" + str(i)) for i in data[col]
                                 .value_counts().index])
-        else:
+        elif drop_last == True:
             temp = pd.DataFrame(temp[:, :-1], columns=[(col + "_" + str(i)) for i in data[col]
                                 .value_counts().index[:-1]])
         # Setting the index for proper concatenation
