@@ -7,6 +7,8 @@ from _support_func import *
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, cohen_kappa_score
+import os
+import shutil
 
 #########################################################################
 # data load
@@ -59,11 +61,40 @@ print_categories(_raw_data_imp_cols, user_input._categorical_features + [user_in
 # _raw_data_imp_cols.select_dtypes(include=['category']).apply(lambda x: print(pd.unique(x)))
 
 # save histogram plots of all categorical variables to data directory
-print("Saving Numerical Variable Histogram to Working Directory...")
-for col in (set(list(_raw_data_imp_cols)) - set(user_input._categorical_features)):
-    plt_hist(x=_raw_data_imp_cols[col], colname=col, n_bin=20, dir_name=user_input._data_dir)
+print("########################--Variable EDA--#################################\n")
+print("Saving Numerical Variable Histogram to Output Directory...")
+path = user_input._output_dir + "numerical_variables/"
+if not os.path.isdir(path):
+    os.makedirs(path)
+# else:
+#     shutil.rmtree(path=path)
+#     os.makedirs(path)
+for col in (set(list(_raw_data_imp_cols)) - set(user_input._categorical_features) - set(list([user_input._output_col]))):
+    plot_num_value_hist(data=_raw_data_imp_cols[col], field=col, n_bin=20, dir_name=path)
+
+print("Saving Categorical Variable Histogram to Output Directory...")
+path = user_input._output_dir + "categorical_variables/"
+if not os.path.isdir(path):
+    os.makedirs(path)
+# else:
+#     shutil.rmtree(path=path)
+#     os.makedirs(path)
+for col in (set(user_input._categorical_features)):
+    bar_count = len(_raw_data_imp_cols[col].unique())
+    plot_count_hist(data = _raw_data_imp_cols, field= col, num_bar=bar_count, x_lim= bar_count+0.01,dir_name=path)
+
+print("Saving Outcome Variable Histogram to Output Directory...")
+path = user_input._output_dir + "Outcome_variables/"
+if not os.path.isdir(path):
+    os.makedirs(path)
+# else:
+#     shutil.rmtree(path=path)
+#     os.makedirs(path)
+for col in (set(list([user_input._output_col]))):
+    bar_count = len(_raw_data_imp_cols[col].unique())
+    plot_count_hist(data = _raw_data_imp_cols, field= col, num_bar=bar_count, x_lim= bar_count+0.01,dir_name=path)
 print("Completed!\n")
-print("#########################################################\n")
+print("#########################################################################\n")
 
 #########################################################################
 # test train split
@@ -91,7 +122,7 @@ X_train_labelEncoded, X_test_labelEncoded = labelEncoder_cat_features(X_train=X_
 X_train_oneHotEncoded, X_test_oneHotEncoded = oneHotEncoder_cat_features(X_train_labelEncoded=X_train_labelEncoded,
                                                                          X_test_labelEncoded=X_test_labelEncoded,
                                                                          cat_feature_list=user_input._categorical_features,
-                                                                         drop_last= True)
+                                                                         drop_last= False)
 
 print("sample One Hot Encoded Data:\n")
 print(X_train_oneHotEncoded.head())
@@ -130,13 +161,18 @@ rf_random = RandomizedSearchCV(estimator=rf, param_distributions=random_grid,
 print(str(user_input.cv) + "-Fold CV in Progress...")
 rf_random.fit(X_train_oneHotEncoded, y_train[user_input._output_col])
 
+
+print("\n##########################--CV Result--####################################\n")
+
 print("\nCV Result:\n")
 print("Best " + user_input.scoring + " Score Obtained:")
 print(rf_random.best_score_)
 print("Best Model Parameter Set for Highest " + user_input.scoring + ":\n")
 print(rf_random.best_params_)
 
-print("\n#######################################################\n")
+print("##############################################################################\n")
+
+print("\n######################--Model Performance--#################################\n")
 
 # print(rf_random.cv_results_)
 # print(rf_random.grid_scores_)
@@ -153,4 +189,4 @@ print(classification_report(y_test[user_input._output_col], rf_random.best_estim
 print("\nCohen Kappa:\n")
 print(cohen_kappa_score(y_test[user_input._output_col], rf_random.best_estimator_.predict(X_test_oneHotEncoded)))
 
-print("#######################################################\n")
+print("##############################################################################\n")

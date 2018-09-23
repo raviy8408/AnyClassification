@@ -113,8 +113,12 @@ def oneHotEncoder_cat_features(X_train_labelEncoded, X_test_labelEncoded, cat_fe
         # Changing the encoded features into a data frame with new column names
         # if number of categorical levels is less than 3, keep only one column
         if drop_last == False:
-            temp = pd.DataFrame(temp, columns=[(col + "_" + str(i)) for i in data[col]
-                                .value_counts().index])
+            if len(data[col].unique()) < 3:
+                temp = pd.DataFrame(temp[:, :-1], columns=[(col + "_" + str(i)) for i in data[col]
+                                    .value_counts().index[:-1]])
+            else:
+                temp = pd.DataFrame(temp, columns=[(col + "_" + str(i)) for i in data[col]
+                                    .value_counts().index])
         elif drop_last == True:
             temp = pd.DataFrame(temp[:, :-1], columns=[(col + "_" + str(i)) for i in data[col]
                                 .value_counts().index[:-1]])
@@ -128,8 +132,12 @@ def oneHotEncoder_cat_features(X_train_labelEncoded, X_test_labelEncoded, cat_fe
         # changing it into data frame and adding column names
         # if number of categorical levels is less than 3, keep only one column
         if drop_last == False:
-            temp = pd.DataFrame(temp, columns=[(col + "_" + str(i)) for i in data[col]
-                                .value_counts().index])
+            if len(data[col].unique()) < 3:
+                temp = pd.DataFrame(temp[:, :-1], columns=[(col + "_" + str(i)) for i in data[col]
+                                    .value_counts().index[:-1]])
+            else:
+                temp = pd.DataFrame(temp, columns=[(col + "_" + str(i)) for i in data[col]
+                                    .value_counts().index])
         elif drop_last == True:
             temp = pd.DataFrame(temp[:, :-1], columns=[(col + "_" + str(i)) for i in data[col]
                                 .value_counts().index[:-1]])
@@ -137,5 +145,9 @@ def oneHotEncoder_cat_features(X_train_labelEncoded, X_test_labelEncoded, cat_fe
         temp = temp.set_index(X_test_labelEncoded.index.values)
         # adding the new One Hot Encoded varibales to test data frame
         X_test_oneHotEncoded = pd.concat([X_test_oneHotEncoded, temp], axis=1)
+
+    # dropping label encoded categorical variables
+    X_train_oneHotEncoded = X_train_oneHotEncoded.drop(cat_feature_list, axis=1)
+    X_test_oneHotEncoded = X_test_oneHotEncoded.drop(cat_feature_list, axis=1)
 
     return X_train_oneHotEncoded, X_test_oneHotEncoded
