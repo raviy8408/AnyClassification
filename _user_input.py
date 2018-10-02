@@ -1,5 +1,5 @@
 ############################################################################
-#Input info
+#                               User Input                                 #
 ############################################################################
 
 _data_dir = "C://files/churn_test/data/"
@@ -14,6 +14,9 @@ _categorical_features = ["Geography", "Gender", "HasCrCard", "IsActiveMember"]
 _integer_features = ["CreditScore", "Age", "Tenure", "NumOfProducts"]
 
 _output_col = "Exited"
+
+# Available models: Logistic_Regression, Random_Forest
+_model_list = ["Logistic_Regression", "Random_Forest"]
 
 ################-- Random Forest Grid Search Parameters --##################
 
