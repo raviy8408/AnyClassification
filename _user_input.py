@@ -43,7 +43,7 @@ n_iter = 5
 # cross validation fold
 cv = 5
 # Integer value, higher the value more text is printed
-verbose=2
+verbose=1
 # model selection criteria
 # choose from ‘accuracy’, ‘average_precision’,‘f1’, ‘f1_micro’, ‘f1_macro’, ‘f1_weighted’, ‘f1_samples’,‘neg_log_loss’,
 # ‘precision’ etc., ‘recall’ etc., roc_auc’

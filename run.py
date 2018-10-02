@@ -62,38 +62,10 @@ print_categories(_raw_data_imp_cols, user_input._categorical_features + [user_in
 
 # save histogram plots of all categorical variables to data directory
 print("########################--Variable EDA--#################################\n")
-print("Saving Numerical Variable Histogram to Output Directory...")
-path = user_input._output_dir + "numerical_variables/"
-if not os.path.isdir(path):
-    os.makedirs(path)
-# else:
-#     shutil.rmtree(path=path)
-#     os.makedirs(path)
-for col in (set(list(_raw_data_imp_cols)) - set(user_input._categorical_features) - set(list([user_input._output_col]))):
-    plot_num_value_hist(data=_raw_data_imp_cols[col], field=col, n_bin=20, dir_name=path)
 
-print("Saving Categorical Variable Histogram to Output Directory...")
-path = user_input._output_dir + "categorical_variables/"
-if not os.path.isdir(path):
-    os.makedirs(path)
-# else:
-#     shutil.rmtree(path=path)
-#     os.makedirs(path)
-for col in (set(user_input._categorical_features)):
-    bar_count = len(_raw_data_imp_cols[col].unique())
-    plot_count_hist(data = _raw_data_imp_cols, field= col, num_bar=bar_count, x_lim= bar_count+0.01,dir_name=path)
+eda_plots(data=_raw_data_imp_cols, cat_feature_list=user_input._categorical_features,
+          outcome_col=user_input._output_col, output_dir=user_input._output_dir)
 
-print("Saving Outcome Variable Histogram to Output Directory...")
-path = user_input._output_dir + "Outcome_variables/"
-if not os.path.isdir(path):
-    os.makedirs(path)
-# else:
-#     shutil.rmtree(path=path)
-#     os.makedirs(path)
-for col in (set(list([user_input._output_col]))):
-    bar_count = len(_raw_data_imp_cols[col].unique())
-    plot_count_hist(data = _raw_data_imp_cols, field= col, num_bar=bar_count, x_lim= bar_count+0.01,dir_name=path)
-print("Completed!\n")
 print("#########################################################################\n")
 
 #########################################################################
@@ -122,7 +94,7 @@ X_train_labelEncoded, X_test_labelEncoded = labelEncoder_cat_features(X_train=X_
 X_train_oneHotEncoded, X_test_oneHotEncoded = oneHotEncoder_cat_features(X_train_labelEncoded=X_train_labelEncoded,
                                                                          X_test_labelEncoded=X_test_labelEncoded,
                                                                          cat_feature_list=user_input._categorical_features,
-                                                                         drop_last= False)
+                                                                         drop_last=False)
 
 print("sample One Hot Encoded Data:\n")
 print(X_train_oneHotEncoded.head())
@@ -135,9 +107,56 @@ print(X_train_oneHotEncoded.dtypes)
 
 print("#######################################################\n")
 
-# #########################################################################
-# # model building
-# #########################################################################
+# ###############################################################
+#                        model building                         #
+# ###############################################################
+
+#######################--Logistic Regression--###################
+
+print("#######################################################\n")
+print("              **Logistic Regression**                  \n")
+print("#######################################################\n")
+
+from sklearn.linear_model import LogisticRegression
+
+logreg = LogisticRegression()
+logreg.fit(X_train_oneHotEncoded, y_train[user_input._output_col])
+
+# print(rf_random.cv_results_)
+# print(rf_random.grid_scores_)
+
+print("#################--Model Performance--#################\n")
+
+path = user_input._output_dir + "Model_Result/" + "Logistic_Regression/"
+if not os.path.isdir(path):
+    os.makedirs(path)
+
+# Saving ROC plot to the drive
+plot_ROC(y_test = y_test[user_input._output_col],
+         y_pred_prob= logreg.predict_proba(X_test_oneHotEncoded)[:, 1], model_name= 'Logistic Regression',
+         image_dir= path)
+print("ROC plot saved to the drive!\n")
+
+print("Model Performance on Test Set:\n")
+print("Accuracy:\n")
+print(str(accuracy_score(y_test[user_input._output_col], logreg.predict(X_test_oneHotEncoded))))
+print("\nConfusion Matrix:\n")
+# print(confusion_matrix(y_test[user_input._output_col],rf_random.best_estimator_.predict(X_test_oneHotEncoded)))
+print(pd.crosstab(y_test[user_input._output_col], logreg.predict(X_test_oneHotEncoded),
+                  rownames=['True'], colnames=['Predicted'], margins=True))
+print("\nClassification Report:\n")
+print(classification_report(y_test[user_input._output_col], logreg.predict(X_test_oneHotEncoded)))
+print("\nCohen Kappa:\n")
+print(cohen_kappa_score(y_test[user_input._output_col], logreg.predict(X_test_oneHotEncoded)))
+
+print("#######################################################\n")
+
+
+#########################--Random Forest--#######################
+
+print("#######################################################\n")
+print("                 **Random Forest**                     \n")
+print("#######################################################\n")
 
 random_grid = {'n_estimators': user_input.n_estimators,
                'max_features': user_input.max_features,
@@ -157,25 +176,34 @@ rf = RandomForestClassifier()
 rf_random = RandomizedSearchCV(estimator=rf, param_distributions=random_grid,
                                n_iter=user_input.n_iter, cv=user_input.cv, verbose=user_input.verbose,
                                random_state=42, scoring=user_input.scoring)
+
 # Fit the random search model
 print(str(user_input.cv) + "-Fold CV in Progress...")
 rf_random.fit(X_train_oneHotEncoded, y_train[user_input._output_col])
 
+print("###################--CV Result--########################\n")
 
-print("\n##########################--CV Result--####################################\n")
-
-print("\nCV Result:\n")
 print("Best " + user_input.scoring + " Score Obtained:")
 print(rf_random.best_score_)
 print("Best Model Parameter Set for Highest " + user_input.scoring + ":\n")
 print(rf_random.best_params_)
 
-print("##############################################################################\n")
+print("#########################################################\n")
 
-print("\n######################--Model Performance--#################################\n")
+print("#################--Model Performance--###################\n")
 
 # print(rf_random.cv_results_)
 # print(rf_random.grid_scores_)
+
+path = user_input._output_dir + "Model_Result/" + "Random_Forest/"
+if not os.path.isdir(path):
+    os.makedirs(path)
+
+# Saving ROC plot to the drive
+plot_ROC(y_test = y_test[user_input._output_col],
+         y_pred_prob= rf_random.best_estimator_.predict_proba(X_test_oneHotEncoded)[:, 1],
+         model_name= 'Random Forest',image_dir= path)
+print("ROC plot saved to the drive!\n")
 
 print("Model Performance on Test Set:\n")
 print("Accuracy:\n")
@@ -189,4 +217,4 @@ print(classification_report(y_test[user_input._output_col], rf_random.best_estim
 print("\nCohen Kappa:\n")
 print(cohen_kappa_score(y_test[user_input._output_col], rf_random.best_estimator_.predict(X_test_oneHotEncoded)))
 
-print("##############################################################################\n")
+print("#######################################################\n")

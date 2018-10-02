@@ -65,3 +65,67 @@ def plot_count_hist(data, field, num_bar, x_lim, dir_name , **kwargs):
     save_file = os.path.join(dir_name, title + ".png")
     plt.savefig(save_file, bbox_inches='tight')
     plt.close(fig)
+
+def eda_plots(data, cat_feature_list, outcome_col, output_dir):
+    """
+    Generated univariate and bivariate data plots to provide data insights
+    :param data: input data containing both X and y
+    :param cat_feature_list: categorical feature list(list of string)
+    :param outcome_col: outcome column(string)
+    :param output_dir: output folder to store all the eda plots
+    :return:
+    """
+    print("Saving Numerical Variable Histogram to Output Directory...")
+    path = output_dir + "eda_plots/" + "numerical_variables/"
+    if not os.path.isdir(path):
+        os.makedirs(path)
+    # else:
+    #     shutil.rmtree(path=path)
+    #     os.makedirs(path)
+    for col in (set(list(data)) - set(cat_feature_list) - set(
+            list([outcome_col]))):
+        plot_num_value_hist(data=data[col], field=col, n_bin=20, dir_name=path)
+
+    print("Saving Categorical Variable Histogram to Output Directory...")
+    path = output_dir + "eda_plots/" + "categorical_variables/"
+    if not os.path.isdir(path):
+        os.makedirs(path)
+    # else:
+    #     shutil.rmtree(path=path)
+    #     os.makedirs(path)
+    for col in (set(cat_feature_list)):
+        bar_count = len(data[col].unique())
+        plot_count_hist(data=data, field=col, num_bar=bar_count, x_lim=bar_count + 0.01, dir_name=path)
+
+    print("Saving Outcome Variable Histogram to Output Directory...")
+    path = output_dir + "eda_plots/" + "outcome_variables/"
+    if not os.path.isdir(path):
+        os.makedirs(path)
+    # else:
+    #     shutil.rmtree(path=path)
+    #     os.makedirs(path)
+    for col in (set(list([outcome_col]))):
+        bar_count = len(data[col].unique())
+        plot_count_hist(data=data, field=col, num_bar=bar_count, x_lim=bar_count + 0.01, dir_name=path)
+    print("Completed!\n")
+
+
+def plot_ROC(y_test, y_pred_prob, model_name, image_dir):
+
+    from sklearn.metrics import roc_auc_score
+    from sklearn.metrics import roc_curve
+
+    rcParams['figure.figsize'] = 8, 6
+    logit_roc_auc = roc_auc_score(y_test, y_pred_prob)
+    fpr, tpr, thresholds = roc_curve(y_test, y_pred_prob)
+    fig = plt.figure()
+    plt.plot(fpr, tpr, label= model_name + ' (area = %0.2f)' % logit_roc_auc)
+    plt.plot([0, 1], [0, 1], 'r--')
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver operating characteristic')
+    plt.legend(loc="lower right")
+    plt.savefig(image_dir + 'ROC')
+    plt.close(fig)
