@@ -23,12 +23,14 @@ _raw_data_imp_cols = _raw_data.drop(user_input._redundant_cols, axis=1)
 # print(_raw_data_imp_cols.head())
 # print(_raw_data_imp_cols.dtypes)
 
-_raw_data_imp_cols[user_input._categorical_features + [user_input._output_col]] = _raw_data_imp_cols[
-    user_input._categorical_features + [user_input._output_col]] \
-    .apply(lambda x: x.astype('category'))
+if user_input._categorical_features:
+    _raw_data_imp_cols[user_input._categorical_features + [user_input._output_col]] = _raw_data_imp_cols[
+        user_input._categorical_features + [user_input._output_col]] \
+        .apply(lambda x: x.astype('category'))
 
-_raw_data_imp_cols[user_input._integer_features] = _raw_data_imp_cols[user_input._integer_features] \
-    .apply(lambda x: x.astype('int64'))
+if user_input._integer_features:
+    _raw_data_imp_cols[user_input._integer_features] = _raw_data_imp_cols[user_input._integer_features] \
+        .apply(lambda x: x.astype('int64'))
 
 _non_float_features = user_input._categorical_features + user_input._integer_features + [user_input._output_col]
 
@@ -52,12 +54,15 @@ print("#######################################################\n")
 
 print("################--Column Description--##################\n")
 print(_raw_data_imp_cols.describe(include=["float"]))
-print(_raw_data_imp_cols.describe(include=["int64"]))
-print(_raw_data_imp_cols.describe(include=["category"]))
-print("########################################################")
+if user_input._integer_features:
+    print(_raw_data_imp_cols.describe(include=["int64"]))
+if user_input._categorical_features:
+    print(_raw_data_imp_cols.describe(include=["category"]))
+print("########################################################\n")
 
 # print the categories of categorical variable
-print_categories(_raw_data_imp_cols, user_input._categorical_features + [user_input._output_col])
+if user_input._categorical_features:
+    print_categories(_raw_data_imp_cols, user_input._categorical_features + [user_input._output_col])
 # _raw_data_imp_cols.select_dtypes(include=['category']).apply(lambda x: print(pd.unique(x)))
 
 # save histogram plots of all categorical variables to data directory
@@ -108,37 +113,75 @@ for model in user_input._model_list:
     #########################################################################
     # One hot encoding of categorical variables
     #########################################################################
-    print("Performing One Hot Encoding of Categorical Variables...\n")
+    if user_input._categorical_features:
+        print("Performing One Hot Encoding of Categorical Variables...\n")
 
-    X_train_labelEncoded, X_test_labelEncoded = labelEncoder_cat_features(X_train=X_train, X_test=X_test,
-                                                                          cat_feature_list=user_input._categorical_features)
+        X_train_labelEncoded, X_test_labelEncoded = labelEncoder_cat_features(X_train=X_train, X_test=X_test,
+                                                                              cat_feature_list=user_input._categorical_features)
 
-    X_train_oneHotEncoded, X_test_oneHotEncoded = oneHotEncoder_cat_features(X_train_labelEncoded=X_train_labelEncoded,
-                                                                             X_test_labelEncoded=X_test_labelEncoded,
-                                                                             cat_feature_list=user_input._categorical_features,
-                                                                             drop_last=drop_last_col)
+        X_train_oneHotEncoded, X_test_oneHotEncoded = oneHotEncoder_cat_features(X_train_labelEncoded=X_train_labelEncoded,
+                                                                                 X_test_labelEncoded=X_test_labelEncoded,
+                                                                                 cat_feature_list=user_input._categorical_features,
+                                                                                 drop_last=drop_last_col)
+
+        # print("Sample Model Input Data:\n")
+        # print(X_train_oneHotEncoded.head())
+        # print("\nColumn Types of Final Data:")
+        # print(X_test_oneHotEncoded.head())
+        # print(X_train_oneHotEncoded.dtypes)
+        # print(X_test_oneHotEncoded.dtypes)
+        # print(len(X_train_oneHotEncoded))
+        # print(len(X_test_oneHotEncoded))
+
+        X_train_model_dt = X_train_oneHotEncoded
+        X_test_model_dt = X_test_oneHotEncoded
+
+
+    else:
+        X_train_model_dt = X_train
+        X_test_model_dt = X_test
+
 
     print("Sample Model Input Data:\n")
-    print(X_train_oneHotEncoded.head())
+    print(X_train_model_dt.head())
     print("\nColumn Types of Final Data:")
-    # print(X_test_oneHotEncoded.head())
-    print(X_train_oneHotEncoded.dtypes)
-    # print(X_test_oneHotEncoded.dtypes)
-    # print(len(X_train_oneHotEncoded))
-    # print(len(X_test_oneHotEncoded))
+    print(X_train_model_dt.dtypes)
 
     print("#######################################################\n")
-
     #######################--Logistic Regression--###################
 
     if model == "Logistic_Regression":
         from sklearn.linear_model import LogisticRegression
 
-        logreg = LogisticRegression()
-        logreg.fit(X_train_oneHotEncoded, y_train[user_input._output_col])
+        random_grid = {'penalty': user_input.penalty,
+                       'C': user_input.C,
+                       }
 
-        # print(rf_random.cv_results_)
-        # print(rf_random.grid_scores_)
+        # length of exhaustive set of parameter combination
+        max_n_iter = 0
+        for key, value in random_grid.items():
+            max_n_iter += len(value)
+
+        logreg = LogisticRegression(class_weight='balanced')
+        # logreg.fit(X_train_model_dt, y_train[user_input._output_col])
+
+        lr_random = RandomizedSearchCV(estimator=logreg, param_distributions=random_grid,
+                                       n_iter=min(user_input.n_iter, max_n_iter),
+                                       cv=user_input.cv, verbose=user_input.verbose,
+                                       random_state=42, scoring=user_input.scoring)
+
+        # Fit the random search model
+        print(str(user_input.cv) + "-Fold CV in Progress...")
+        lr_random.fit(X_train_model_dt, y_train[user_input._output_col])
+
+        print("###################--CV Result--########################\n")
+
+        print("Best " + user_input.scoring + " Score Obtained:")
+        print(lr_random.best_score_)
+        print("Best Model Parameter Set for Highest " + user_input.scoring + ":\n")
+        print(lr_random.best_params_)
+
+        print("\n#########################################################\n")
 
         print("#################--Model Performance--#################\n")
 
@@ -148,21 +191,21 @@ for model in user_input._model_list:
 
         # Saving ROC plot to the drive
         plot_ROC(y_test = y_test[user_input._output_col],
-                 y_pred_prob= logreg.predict_proba(X_test_oneHotEncoded)[:, 1], model_name= 'Logistic Regression',
+                 y_pred_prob= lr_random.best_estimator_.predict_proba(X_test_model_dt)[:, 1], model_name= 'Logistic Regression',
                  image_dir= path)
         print("ROC plot saved to the drive!\n")
 
         print("Model Performance on Test Set:\n")
         print("Accuracy:\n")
-        print(str(accuracy_score(y_test[user_input._output_col], logreg.predict(X_test_oneHotEncoded))))
+        print(str(accuracy_score(y_test[user_input._output_col], lr_random.best_estimator_.predict(X_test_model_dt))))
         print("\nConfusion Matrix:\n")
         # print(confusion_matrix(y_test[user_input._output_col],rf_random.best_estimator_.predict(X_test_oneHotEncoded)))
-        print(pd.crosstab(y_test[user_input._output_col], logreg.predict(X_test_oneHotEncoded),
+        print(pd.crosstab(y_test[user_input._output_col], lr_random.best_estimator_.predict(X_test_model_dt),
                           rownames=['True'], colnames=['Predicted'], margins=True))
         print("\nClassification Report:\n")
-        print(classification_report(y_test[user_input._output_col], logreg.predict(X_test_oneHotEncoded)))
+        print(classification_report(y_test[user_input._output_col], lr_random.best_estimator_.predict(X_test_model_dt)))
         print("\nCohen Kappa:\n")
-        print(cohen_kappa_score(y_test[user_input._output_col], logreg.predict(X_test_oneHotEncoded)))
+        print(cohen_kappa_score(y_test[user_input._output_col], lr_random.best_estimator_.predict(X_test_model_dt)))
 
         print("#######################################################\n")
 
@@ -179,6 +222,11 @@ for model in user_input._model_list:
                        'bootstrap': user_input.bootstrap,
                        'class_weight': user_input.class_weight}
 
+        # length of exhaustive set of parameter combination
+        max_n_iter = 0
+        for key, value in random_grid.items():
+            max_n_iter += len(value)
+
         # print(random_grid)
 
         # Use the random grid to search for best hyperparameters
@@ -187,12 +235,13 @@ for model in user_input._model_list:
         # Random search of parameters, using n fold cross validation,
         # search across 100 different combinations, and use all available cores
         rf_random = RandomizedSearchCV(estimator=rf, param_distributions=random_grid,
-                                       n_iter=user_input.n_iter, cv=user_input.cv, verbose=user_input.verbose,
+                                       n_iter=min(user_input.n_iter, max_n_iter), cv=user_input.cv,
+                                       verbose=user_input.verbose,
                                        random_state=42, scoring=user_input.scoring)
 
         # Fit the random search model
         print(str(user_input.cv) + "-Fold CV in Progress...")
-        rf_random.fit(X_train_oneHotEncoded, y_train[user_input._output_col])
+        rf_random.fit(X_train_model_dt, y_train[user_input._output_col])
 
         print("###################--CV Result--########################\n")
 
@@ -214,21 +263,21 @@ for model in user_input._model_list:
 
         # Saving ROC plot to the drive
         plot_ROC(y_test = y_test[user_input._output_col],
-                 y_pred_prob= rf_random.best_estimator_.predict_proba(X_test_oneHotEncoded)[:, 1],
+                 y_pred_prob= rf_random.best_estimator_.predict_proba(X_test_model_dt)[:, 1],
                  model_name= 'Random Forest',image_dir= path)
         print("ROC plot saved to the drive!\n")
 
         print("Model Performance on Test Set:\n")
         print("Accuracy:\n")
-        print(str(accuracy_score(y_test[user_input._output_col], rf_random.best_estimator_.predict(X_test_oneHotEncoded))))
+        print(str(accuracy_score(y_test[user_input._output_col], rf_random.best_estimator_.predict(X_test_model_dt))))
         print("\nConfusion Matrix:\n")
         # print(confusion_matrix(y_test[user_input._output_col],rf_random.best_estimator_.predict(X_test_oneHotEncoded)))
-        print(pd.crosstab(y_test[user_input._output_col], rf_random.best_estimator_.predict(X_test_oneHotEncoded),
+        print(pd.crosstab(y_test[user_input._output_col], rf_random.best_estimator_.predict(X_test_model_dt),
                           rownames=['True'], colnames=['Predicted'], margins=True))
         print("\nClassification Report:\n")
-        print(classification_report(y_test[user_input._output_col], rf_random.best_estimator_.predict(X_test_oneHotEncoded)))
+        print(classification_report(y_test[user_input._output_col], rf_random.best_estimator_.predict(X_test_model_dt)))
         print("\nCohen Kappa:\n")
-        print(cohen_kappa_score(y_test[user_input._output_col], rf_random.best_estimator_.predict(X_test_oneHotEncoded)))
+        print(cohen_kappa_score(y_test[user_input._output_col], rf_random.best_estimator_.predict(X_test_model_dt)))
 
         print("#######################################################\n")
 

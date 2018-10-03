@@ -43,11 +43,13 @@ def test_train_splitter(df, y, cat_feature_list, int_feature_list, outcome_type=
     y_test_df = pd.DataFrame(data=y_test, columns=[y])
 
     # assigning variable types to test and train data columns
-    X_train_df[cat_feature_list] = X_train_df[cat_feature_list].apply(lambda x: x.astype('category'))
-    X_test_df[cat_feature_list] = X_test_df[cat_feature_list].apply(lambda x: x.astype('category'))
+    if cat_feature_list:
+        X_train_df[cat_feature_list] = X_train_df[cat_feature_list].apply(lambda x: x.astype('category'))
+        X_test_df[cat_feature_list] = X_test_df[cat_feature_list].apply(lambda x: x.astype('category'))
 
-    X_train_df[int_feature_list] = X_train_df[int_feature_list].apply(lambda x: x.astype('int64'))
-    X_test_df[int_feature_list] = X_test_df[int_feature_list].apply(lambda x: x.astype('int64'))
+    if int_feature_list:
+        X_train_df[int_feature_list] = X_train_df[int_feature_list].apply(lambda x: x.astype('int64'))
+        X_test_df[int_feature_list] = X_test_df[int_feature_list].apply(lambda x: x.astype('int64'))
 
     _non_float_feature_list = cat_feature_list + [y] + int_feature_list
 

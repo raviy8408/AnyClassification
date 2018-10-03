@@ -1,3 +1,5 @@
+import numpy as np
+
 ############################################################################
 #                               User Input                                 #
 ############################################################################
@@ -18,9 +20,15 @@ _output_col = "Exited"
 # Available models: Logistic_Regression, Random_Forest
 _model_list = ["Logistic_Regression", "Random_Forest"]
 
-################-- Random Forest Grid Search Parameters --##################
+################-- Logistic Regression Grid Search Parameters --############
 
-import numpy as np
+# l1 and l2 regularization parameter
+penalty = ['l1', 'l2']
+
+# regularization parameter c = 1/lambda
+C = [0.01, 0.05, 0.1, 0.2, 0.3, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+
+################-- Random Forest Grid Search Parameters --##################
 
 # Number of trees in random forest
 n_estimators = [int(x) for x in np.linspace(start = 20, stop = 200, num = 50)]
@@ -42,7 +50,7 @@ class_weight.append(None)
 #############################-- CV Parameters --############################
 
 # Number of parameter settings that are sampled
-n_iter = 5
+n_iter = 50
 # cross validation fold
 cv = 5
 # Integer value, higher the value more text is printed

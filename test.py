@@ -71,9 +71,16 @@
 # # print(_binned_data.dtypes)
 # # print_categories(_binned_data, list(_binned_data))
 #
+#
+# import pandas as pd
+#
+# df = pd.DataFrame(data={'a': [1,2,3],'b': [5,6,7]})
+#
+# print(df.dtypes)
 
-import pandas as pd
+l = []
 
-df = pd.DataFrame(data={'a': [1,2,3],'b': [5,6,7]})
-
-print(df.dtypes)
+if l:
+    print("array is not empty")
+else:
+    print("array is empty")

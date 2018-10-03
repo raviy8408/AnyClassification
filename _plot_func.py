@@ -86,16 +86,17 @@ def eda_plots(data, cat_feature_list, outcome_col, output_dir):
             list([outcome_col]))):
         plot_num_value_hist(data=data[col], field=col, n_bin=20, dir_name=path)
 
-    print("Saving Categorical Variable Histogram to Output Directory...")
-    path = output_dir + "eda_plots/" + "categorical_variables/"
-    if not os.path.isdir(path):
-        os.makedirs(path)
-    # else:
-    #     shutil.rmtree(path=path)
-    #     os.makedirs(path)
-    for col in (set(cat_feature_list)):
-        bar_count = len(data[col].unique())
-        plot_count_hist(data=data, field=col, num_bar=bar_count, x_lim=bar_count + 0.01, dir_name=path)
+    if cat_feature_list:
+        print("Saving Categorical Variable Histogram to Output Directory...")
+        path = output_dir + "eda_plots/" + "categorical_variables/"
+        if not os.path.isdir(path):
+            os.makedirs(path)
+        # else:
+        #     shutil.rmtree(path=path)
+        #     os.makedirs(path)
+        for col in (set(cat_feature_list)):
+            bar_count = len(data[col].unique())
+            plot_count_hist(data=data, field=col, num_bar=bar_count, x_lim=bar_count + 0.01, dir_name=path)
 
     print("Saving Outcome Variable Histogram to Output Directory...")
     path = output_dir + "eda_plots/" + "outcome_variables/"
