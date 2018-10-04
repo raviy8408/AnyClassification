@@ -181,6 +181,11 @@ for model in user_input._model_list:
         print("Best Model Parameter Set for Highest " + user_input.scoring + ":\n")
         print(lr_random.best_params_)
 
+        print("\n P values for variables:\n")
+        cal_lr_p_vals(X =X_train_model_dt, y = y_train[user_input._output_col],
+                      params = np.append(lr_random.best_estimator_.intercept_, lr_random.best_estimator_.coef_),
+                      predictions = lr_random.best_estimator_.predict(X_train_model_dt))
+
         print("\n#########################################################\n")
 
         print("#################--Model Performance--#################\n")
@@ -250,16 +255,22 @@ for model in user_input._model_list:
         print("Best Model Parameter Set for Highest " + user_input.scoring + ":\n")
         print(rf_random.best_params_)
 
+        importances = rf_random.best_estimator_.feature_importances_
+
+        path = user_input._output_dir + "Model_Result/" + "Random_Forest/"
+        if not os.path.isdir(path):
+            os.makedirs(path)
+
+        plt_feature_imp(importances=importances, feature_list=X_train_model_dt.columns.values,
+                        n_top_features= min(len(X_train_model_dt.columns.values), 30),
+                        image_dir=path)
+
         print("\n#########################################################\n")
 
         print("#################--Model Performance--###################\n")
 
         # print(rf_random.cv_results_)
         # print(rf_random.grid_scores_)
-
-        path = user_input._output_dir + "Model_Result/" + "Random_Forest/"
-        if not os.path.isdir(path):
-            os.makedirs(path)
 
         # Saving ROC plot to the drive
         plot_ROC(y_test = y_test[user_input._output_col],

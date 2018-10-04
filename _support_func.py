@@ -153,3 +153,30 @@ def oneHotEncoder_cat_features(X_train_labelEncoded, X_test_labelEncoded, cat_fe
     X_test_oneHotEncoded = X_test_oneHotEncoded.drop(cat_feature_list, axis=1)
 
     return X_train_oneHotEncoded, X_test_oneHotEncoded
+
+
+def cal_lr_p_vals(X, y, params, predictions):
+
+    from scipy import stats
+
+    newX = pd.DataFrame({"Constant":np.ones(len(X))}).join(pd.DataFrame(X))
+    MSE = (sum((y-predictions)**2))/(len(newX)-len(newX.columns))
+
+    # Note if you don't want to use a DataFrame replace the two lines above with
+    # newX = np.append(np.ones((len(X),1)), X, axis=1)
+    # MSE = (sum((y-predictions)**2))/(len(newX)-len(newX[0]))
+
+    var_b = MSE*(np.linalg.inv(np.dot(newX.T,newX)).diagonal())
+    sd_b = np.sqrt(var_b)
+    ts_b = params/ sd_b
+
+    p_values =[2*(1-stats.t.cdf(np.abs(i),(len(newX)-1))) for i in ts_b]
+
+    sd_b = np.round(sd_b,3)
+    ts_b = np.round(ts_b,3)
+    p_values = np.round(p_values,3)
+    params = np.round(params,4)
+
+    myDF3 = pd.DataFrame()
+    myDF3["Coefficients"],myDF3["Standard Errors"],myDF3["t values"],myDF3["Probabilites"] = [params,sd_b,ts_b,p_values]
+    print(myDF3)
