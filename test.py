@@ -77,10 +77,18 @@
 # df = pd.DataFrame(data={'a': [1,2,3],'b': [5,6,7]})
 #
 # print(df.dtypes)
+#
+# l = []
+#
+# if l:
+#     print("array is not empty")
+# else:
+#     print("array is empty")
 
-l = []
+import numpy as np
 
-if l:
-    print("array is not empty")
-else:
-    print("array is empty")
+C_range = np.logspace(-3, 3, 7)
+gamma_range = np.logspace(-9, 3, 13)
+
+print(C_range)
+print(gamma_range)

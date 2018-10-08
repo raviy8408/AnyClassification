@@ -3,7 +3,7 @@ import numpy as np
 import _user_input as user_input
 from _plot_func import *
 from _models import *
-from mdlp.discretization import MDLP
+# from mdlp.discretization import MDLP
 from _support_func import *
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler
 import os
@@ -96,7 +96,7 @@ print("\n#######################################################\n")
 # ###############################################################
 #                        model building                         #
 # ###############################################################
-available_model_list = ["Logistic_Regression", "svm", "Random_Forest"]
+available_model_list = ["Logistic_Regression", "svm_linear", "svm_kernel",  "Random_Forest"]
 
 # Loop for all the models provided in user input
 for model in user_input._model_list:
@@ -106,7 +106,7 @@ for model in user_input._model_list:
     print("#######################################################\n")
 
     if model in available_model_list:
-        if model in ["Logistic_Regression", "svm"]:
+        if model in ["Logistic_Regression", "svm_linear", "svm_kernel"]:
             # in one hot encoding drop the last dummy variable column to avoid multi-collinearity
             X_train[_numeric_features] = scalar.transform(X_train[_numeric_features])
             X_test[_numeric_features] = scalar.transform(X_test[_numeric_features])
@@ -148,22 +148,30 @@ for model in user_input._model_list:
 
         print("#######################################################\n")
 
-    #######################--Logistic Regression--###################
+    #######################--Logistic Regression--##################
 
     if model == "Logistic_Regression":
 
         Logistic_Regresion(X_train_model_dt = X_train_model_dt, y_train = y_train, X_test_model_dt = X_test_model_dt,
                            y_test = y_test)
 
-    ############################--SVM--################################
+    ############################--SVM Linear--######################
 
-    elif model == "svm":
+    elif model == "svm_linear":
 
-        SVC_Linear(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
+        SVM_Linear(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
+                   y_test=y_test)
+
+
+    ############################--SVM Kernel--######################
+
+    elif model == "svm_kernel":
+
+        SVM_Kernel(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
                            y_test=y_test)
 
 
-    #########################--Random Forest--#######################
+    #########################--Random Forest--#####################
 
     elif model == "Random_Forest":
 

@@ -8,8 +8,7 @@ def Logistic_Regresion(X_train_model_dt, y_train, X_test_model_dt, y_test):
     from sklearn.linear_model import LogisticRegression
 
     random_grid = {'penalty': user_input.penalty,
-                   'C': user_input.C,
-                   }
+                   'C': user_input.C}
 
     # length of exhaustive set of parameter combination
     max_n_iter = 1
@@ -72,13 +71,13 @@ def Logistic_Regresion(X_train_model_dt, y_train, X_test_model_dt, y_test):
 
     print("#######################################################\n")
 
-def SVC_Linear(X_train_model_dt, y_train, X_test_model_dt, y_test):
+def SVM_Linear(X_train_model_dt, y_train, X_test_model_dt, y_test):
 
     from sklearn.svm import SVC
 
     print("Running linear SVM..\n")
 
-    random_grid = {'C': user_input.C_svm, 'kernel': ['linear']}
+    random_grid = {'C': user_input.C_svm_linear, 'kernel': ['linear']}
     # {'C': [1, 10, 100, 1000], 'gamma': [0.001, 0.0001], 'kernel': ['rbf']},
 
     # length of exhaustive set of parameter combination
@@ -127,6 +126,63 @@ def SVC_Linear(X_train_model_dt, y_train, X_test_model_dt, y_test):
                                 svc_linear_random.best_estimator_.predict(X_test_model_dt)))
     print("\nCohen Kappa:\n")
     print(cohen_kappa_score(y_test[user_input._output_col], svc_linear_random.best_estimator_.predict(X_test_model_dt)))
+
+    print("#######################################################\n")
+
+def SVM_Kernel(X_train_model_dt, y_train, X_test_model_dt, y_test):
+
+    from sklearn.svm import SVC
+
+    print("Running SVM Kernel..\n")
+
+    random_grid = {'C': user_input.C_svm_kernel, 'gamma': user_input.gamma, 'kernel': user_input.kernel}
+
+    # length of exhaustive set of parameter combination
+    max_n_iter = 1
+    for key, value in random_grid.items():
+        max_n_iter *= len(value)
+
+    svc_kernel = SVC(class_weight='balanced')
+
+    svc_kernel_random = RandomizedSearchCV(estimator=svc_kernel, param_distributions=random_grid,
+                                           n_iter=min(user_input.n_iter, max_n_iter),
+                                           cv=user_input.cv, verbose=user_input.verbose,
+                                           random_state=42, scoring=user_input.scoring)
+
+    # Fit the random search model
+    print(str(user_input.cv) + "-Fold CV in Progress...")
+    svc_kernel_random.fit(X_train_model_dt, y_train[user_input._output_col])
+
+    print("###################--CV Result--########################\n")
+
+    print("Best " + user_input.scoring + " Score Obtained:")
+    print(svc_kernel_random.best_score_)
+    print("Best Model Parameter Set for Highest " + user_input.scoring + ":\n")
+    print(svc_kernel_random.best_params_)
+
+    print("\n#########################################################\n")
+
+    print("#################--Model Performance--#################\n")
+
+    path = user_input._output_dir + "Model_Result/" + "SVM/svm_kernel/"
+    if not os.path.isdir(path):
+        os.makedirs(path)
+
+    print("ROC plot saved to the drive!\n")
+
+    print("Model Performance on Test Set:\n")
+    print("Accuracy:\n")
+    print(
+        str(accuracy_score(y_test[user_input._output_col], svc_kernel_random.best_estimator_.predict(X_test_model_dt))))
+    print("\nConfusion Matrix:\n")
+    # print(confusion_matrix(y_test[user_input._output_col],rf_random.best_estimator_.predict(X_test_oneHotEncoded)))
+    print(pd.crosstab(y_test[user_input._output_col], svc_kernel_random.best_estimator_.predict(X_test_model_dt),
+                      rownames=['True'], colnames=['Predicted'], margins=True))
+    print("\nClassification Report:\n")
+    print(classification_report(y_test[user_input._output_col],
+                                svc_kernel_random.best_estimator_.predict(X_test_model_dt)))
+    print("\nCohen Kappa:\n")
+    print(cohen_kappa_score(y_test[user_input._output_col], svc_kernel_random.best_estimator_.predict(X_test_model_dt)))
 
     print("#######################################################\n")
 

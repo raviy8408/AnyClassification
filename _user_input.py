@@ -18,7 +18,7 @@ _integer_features = ["CreditScore", "Age", "Tenure", "NumOfProducts"]
 _output_col = "Exited"
 
 # Available models: Logistic_Regression, Random_Forest
-_model_list = ["Logistic_Regression", "svm", "Random_Forest"]
+_model_list = ["Logistic_Regression", "svm_linear", "svm_kernel", "Random_Forest"]
 
 # Printing level set
 verbose_high = False
@@ -31,10 +31,17 @@ penalty = ['l1', 'l2']
 # regularization parameter c = 1/lambda
 C = [0.01, 0.05, 0.1, 0.2, 0.3, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
-################-- Logistic Regression Grid Search Parameters --############
+################-- SVM Linear Grid Search Parameters --############
 
 # regularization parameter c = 1/lambda
-C_svm = [1.0]
+C_svm_linear = np.logspace(-3, 3, 7)
+
+################-- SVM Kernel Grid Search Parameters --############
+
+# regularization parameter c = 1/lambda
+C_svm_kernel = np.logspace(-3, 3, 7)
+gamma = np.logspace(-3, 3, 7)
+kernel = ['rbf']
 
 ################-- Random Forest Grid Search Parameters --##################
 
@@ -62,11 +69,11 @@ n_iter = 5
 # cross validation fold
 cv = 5
 # Integer value, higher the value more text is printed
-verbose=1
+verbose = 1
 # model selection criteria
 # choose from ‘accuracy’, ‘average_precision’,‘f1’, ‘f1_micro’, ‘f1_macro’, ‘f1_weighted’, ‘f1_samples’,‘neg_log_loss’,
 # ‘precision’ etc., ‘recall’ etc., roc_auc’
-scoring= 'f1_weighted'
+scoring = 'f1_weighted'
 
 ############################################################################
 
