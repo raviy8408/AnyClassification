@@ -2,11 +2,10 @@ import pandas as pd
 import numpy as np
 import _user_input as user_input
 from _plot_func import *
+from _models import *
 from mdlp.discretization import MDLP
 from _support_func import *
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import RandomizedSearchCV
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, cohen_kappa_score
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler
 import os
 import shutil
 
@@ -34,11 +33,13 @@ if user_input._integer_features:
 
 _non_float_features = user_input._categorical_features + user_input._integer_features + [user_input._output_col]
 
+_numeric_features = user_input._integer_features + _raw_data_imp_cols.columns.difference(_non_float_features).values.tolist()
+
 _raw_data_imp_cols[_raw_data_imp_cols.columns.difference(_non_float_features)] = _raw_data_imp_cols[
     _raw_data_imp_cols.columns.difference(_non_float_features)] \
     .apply(lambda x: x.astype('float'))
 
-print("###################--Data Head--#######################\n")
+print("###################--Data Head--#########################\n")
 print(_raw_data_imp_cols.head())
 print("\n#######################################################\n")
 print("Outcome_Variable:" + user_input._output_col + "\n")
@@ -73,12 +74,17 @@ eda_plots(data=_raw_data_imp_cols, cat_feature_list=user_input._categorical_feat
 
 print("#########################################################################\n")
 
+########################################################################
+# Fit the Scalar on the data
+########################################################################
+scalar = StandardScaler().fit(_raw_data_imp_cols[_numeric_features])
+
 #########################################################################
 # test train split
 #########################################################################
 print("Splitting Test and Train Data...\n")
 # test_train_splitter(df, y, cat_feature_list, int_feature_list, outcome_type = 'category', split_frac = 0.8)
-X_train, y_train, X_test, y_test = test_train_splitter(df=_raw_data_imp_cols, y=user_input._output_col,
+X_train, y_train, X_test, y_test = test_train_splitter(df= _raw_data_imp_cols, y=user_input._output_col,
                                                        cat_feature_list=user_input._categorical_features,
                                                        int_feature_list=user_input._integer_features)
 print("Train Data Length:" + str(len(X_train)))
@@ -90,8 +96,7 @@ print("\n#######################################################\n")
 # ###############################################################
 #                        model building                         #
 # ###############################################################
-
-available_model_list = ["Logistic_Regression", "Random_Forest"]
+available_model_list = ["Logistic_Regression", "svm", "Random_Forest"]
 
 # Loop for all the models provided in user input
 for model in user_input._model_list:
@@ -101,8 +106,10 @@ for model in user_input._model_list:
     print("#######################################################\n")
 
     if model in available_model_list:
-        if model == "Logistic_Regression":
+        if model in ["Logistic_Regression", "svm"]:
             # in one hot encoding drop the last dummy variable column to avoid multi-collinearity
+            X_train[_numeric_features] = scalar.transform(X_train[_numeric_features])
+            X_test[_numeric_features] = scalar.transform(X_test[_numeric_features])
             drop_last_col = True
         else:
             drop_last_col = False
@@ -123,173 +130,44 @@ for model in user_input._model_list:
                                                                                  X_test_labelEncoded=X_test_labelEncoded,
                                                                                  cat_feature_list=user_input._categorical_features,
                                                                                  drop_last=drop_last_col)
-
-        # print("Sample Model Input Data:\n")
-        # print(X_train_oneHotEncoded.head())
-        # print("\nColumn Types of Final Data:")
-        # print(X_test_oneHotEncoded.head())
-        # print(X_train_oneHotEncoded.dtypes)
-        # print(X_test_oneHotEncoded.dtypes)
-        # print(len(X_train_oneHotEncoded))
-        # print(len(X_test_oneHotEncoded))
-
+        # assigning final train and test X data if one hot encoding is done
         X_train_model_dt = X_train_oneHotEncoded
         X_test_model_dt = X_test_oneHotEncoded
 
 
     else:
+        # assigning final train and test X data if one hot encoding is not done
         X_train_model_dt = X_train
         X_test_model_dt = X_test
 
+    if user_input.verbose_high == True:
+        print("Sample Model Input Data:\n")
+        print(X_train_model_dt.head())
+        print("\nColumn Types of Final Data:")
+        print(X_train_model_dt.dtypes)
 
-    print("Sample Model Input Data:\n")
-    print(X_train_model_dt.head())
-    print("\nColumn Types of Final Data:")
-    print(X_train_model_dt.dtypes)
+        print("#######################################################\n")
 
-    print("#######################################################\n")
     #######################--Logistic Regression--###################
 
     if model == "Logistic_Regression":
-        from sklearn.linear_model import LogisticRegression
 
-        random_grid = {'penalty': user_input.penalty,
-                       'C': user_input.C,
-                       }
+        Logistic_Regresion(X_train_model_dt = X_train_model_dt, y_train = y_train, X_test_model_dt = X_test_model_dt,
+                           y_test = y_test)
 
-        # length of exhaustive set of parameter combination
-        max_n_iter = 0
-        for key, value in random_grid.items():
-            max_n_iter += len(value)
+    ############################--SVM--################################
 
-        logreg = LogisticRegression(class_weight='balanced')
-        # logreg.fit(X_train_model_dt, y_train[user_input._output_col])
+    elif model == "svm":
 
-        lr_random = RandomizedSearchCV(estimator=logreg, param_distributions=random_grid,
-                                       n_iter=min(user_input.n_iter, max_n_iter),
-                                       cv=user_input.cv, verbose=user_input.verbose,
-                                       random_state=42, scoring=user_input.scoring)
-
-        # Fit the random search model
-        print(str(user_input.cv) + "-Fold CV in Progress...")
-        lr_random.fit(X_train_model_dt, y_train[user_input._output_col])
-
-        print("###################--CV Result--########################\n")
-
-        print("Best " + user_input.scoring + " Score Obtained:")
-        print(lr_random.best_score_)
-        print("Best Model Parameter Set for Highest " + user_input.scoring + ":\n")
-        print(lr_random.best_params_)
-
-        print("\n P values for variables:\n")
-        cal_lr_p_vals(X =X_train_model_dt, y = y_train[user_input._output_col],
-                      params = np.append(lr_random.best_estimator_.intercept_, lr_random.best_estimator_.coef_),
-                      predictions = lr_random.best_estimator_.predict(X_train_model_dt))
-
-        print("\n#########################################################\n")
-
-        print("#################--Model Performance--#################\n")
-
-        path = user_input._output_dir + "Model_Result/" + "Logistic_Regression/"
-        if not os.path.isdir(path):
-            os.makedirs(path)
-
-        # Saving ROC plot to the drive
-        plot_ROC(y_test = y_test[user_input._output_col],
-                 y_pred_prob= lr_random.best_estimator_.predict_proba(X_test_model_dt)[:, 1], model_name= 'Logistic Regression',
-                 image_dir= path)
-        print("ROC plot saved to the drive!\n")
-
-        print("Model Performance on Test Set:\n")
-        print("Accuracy:\n")
-        print(str(accuracy_score(y_test[user_input._output_col], lr_random.best_estimator_.predict(X_test_model_dt))))
-        print("\nConfusion Matrix:\n")
-        # print(confusion_matrix(y_test[user_input._output_col],rf_random.best_estimator_.predict(X_test_oneHotEncoded)))
-        print(pd.crosstab(y_test[user_input._output_col], lr_random.best_estimator_.predict(X_test_model_dt),
-                          rownames=['True'], colnames=['Predicted'], margins=True))
-        print("\nClassification Report:\n")
-        print(classification_report(y_test[user_input._output_col], lr_random.best_estimator_.predict(X_test_model_dt)))
-        print("\nCohen Kappa:\n")
-        print(cohen_kappa_score(y_test[user_input._output_col], lr_random.best_estimator_.predict(X_test_model_dt)))
-
-        print("#######################################################\n")
+        SVC_Linear(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
+                           y_test=y_test)
 
 
     #########################--Random Forest--#######################
 
     elif model == "Random_Forest":
 
-        random_grid = {'n_estimators': user_input.n_estimators,
-                       'max_features': user_input.max_features,
-                       'max_depth': user_input.max_depth,
-                       'min_samples_split': user_input.min_samples_split,
-                       'min_samples_leaf': user_input.min_samples_leaf,
-                       'bootstrap': user_input.bootstrap,
-                       'class_weight': user_input.class_weight}
-
-        # length of exhaustive set of parameter combination
-        max_n_iter = 0
-        for key, value in random_grid.items():
-            max_n_iter += len(value)
-
-        # print(random_grid)
-
-        # Use the random grid to search for best hyperparameters
-        # First create the base model to tune
-        rf = RandomForestClassifier()
-        # Random search of parameters, using n fold cross validation,
-        # search across 100 different combinations, and use all available cores
-        rf_random = RandomizedSearchCV(estimator=rf, param_distributions=random_grid,
-                                       n_iter=min(user_input.n_iter, max_n_iter), cv=user_input.cv,
-                                       verbose=user_input.verbose,
-                                       random_state=42, scoring=user_input.scoring)
-
-        # Fit the random search model
-        print(str(user_input.cv) + "-Fold CV in Progress...")
-        rf_random.fit(X_train_model_dt, y_train[user_input._output_col])
-
-        print("###################--CV Result--########################\n")
-
-        print("Best " + user_input.scoring + " Score Obtained:")
-        print(rf_random.best_score_)
-        print("Best Model Parameter Set for Highest " + user_input.scoring + ":\n")
-        print(rf_random.best_params_)
-
-        importances = rf_random.best_estimator_.feature_importances_
-
-        path = user_input._output_dir + "Model_Result/" + "Random_Forest/"
-        if not os.path.isdir(path):
-            os.makedirs(path)
-
-        plt_feature_imp(importances=importances, feature_list=X_train_model_dt.columns.values,
-                        n_top_features= min(len(X_train_model_dt.columns.values), 30),
-                        image_dir=path)
-
-        print("\n#########################################################\n")
-
-        print("#################--Model Performance--###################\n")
-
-        # print(rf_random.cv_results_)
-        # print(rf_random.grid_scores_)
-
-        # Saving ROC plot to the drive
-        plot_ROC(y_test = y_test[user_input._output_col],
-                 y_pred_prob= rf_random.best_estimator_.predict_proba(X_test_model_dt)[:, 1],
-                 model_name= 'Random Forest',image_dir= path)
-        print("ROC plot saved to the drive!\n")
-
-        print("Model Performance on Test Set:\n")
-        print("Accuracy:\n")
-        print(str(accuracy_score(y_test[user_input._output_col], rf_random.best_estimator_.predict(X_test_model_dt))))
-        print("\nConfusion Matrix:\n")
-        # print(confusion_matrix(y_test[user_input._output_col],rf_random.best_estimator_.predict(X_test_oneHotEncoded)))
-        print(pd.crosstab(y_test[user_input._output_col], rf_random.best_estimator_.predict(X_test_model_dt),
-                          rownames=['True'], colnames=['Predicted'], margins=True))
-        print("\nClassification Report:\n")
-        print(classification_report(y_test[user_input._output_col], rf_random.best_estimator_.predict(X_test_model_dt)))
-        print("\nCohen Kappa:\n")
-        print(cohen_kappa_score(y_test[user_input._output_col], rf_random.best_estimator_.predict(X_test_model_dt)))
-
-        print("#######################################################\n")
+        Random_Forest(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
+                           y_test=y_test)
 
 
