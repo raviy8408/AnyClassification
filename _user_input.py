@@ -18,7 +18,7 @@ _integer_features = ["CreditScore", "Age", "Tenure", "NumOfProducts"]
 _output_col = "Exited"
 
 # Available models: Logistic_Regression, Random_Forest
-_model_list = ["Logistic_Regression", "svm_linear", "svm_kernel", "Random_Forest"]
+_model_list = ["Logistic_Regression", "svm_linear", "svm_kernel", "Random_Forest", "Xgboost"]
 
 # Printing level set
 verbose_high = False
@@ -62,6 +62,14 @@ bootstrap = [True, False]
 class_weight = ['balanced', 'balanced_subsample']
 class_weight.append(None)
 
+################-- Xgboost Grid Search Parameters --########################
+
+XGB_min_child_weight = [1, 5, 10]
+XGB_gamma = [0.5, 1, 1.5, 2, 5]
+XGB_subsample = [0.6, 0.8, 1.0]
+XGB_colsample_bytree = [0.6, 0.8, 1.0]
+XGB_max_depth = [3, 4, 5]
+
 #############################-- CV Parameters --############################
 
 # Number of parameter settings that are sampled
@@ -73,7 +81,7 @@ verbose = 1
 # model selection criteria
 # choose from ‘accuracy’, ‘average_precision’,‘f1’, ‘f1_micro’, ‘f1_macro’, ‘f1_weighted’, ‘f1_samples’,‘neg_log_loss’,
 # ‘precision’ etc., ‘recall’ etc., roc_auc’
-scoring = 'f1_weighted'
+scoring = 'roc_auc'
 
 ############################################################################
 
