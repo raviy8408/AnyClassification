@@ -96,7 +96,7 @@ print("\n#######################################################\n")
 # ###############################################################
 #                        model building                         #
 # ###############################################################
-available_model_list = ["Logistic_Regression", "svm_linear", "svm_kernel",  "Random_Forest", "Xgboost"]
+available_model_list = ["Logistic_Regression", "svm_linear", "svm_kernel",  "Random_Forest", "Xgboost", "ANN"]
 
 # Loop for all the models provided in user input
 for model in user_input._model_list:
@@ -179,11 +179,18 @@ for model in user_input._model_list:
                            y_test=y_test)
 
 
-    #########################--Random Forest--#####################
+    #########################-- XGBoost--#####################
 
     elif model == "Xgboost":
 
         Xgboost(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
+                           y_test=y_test)
+
+    #########################--ANN --#####################
+
+    elif model == "ANN":
+
+        ANN(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
                            y_test=y_test)
 
 

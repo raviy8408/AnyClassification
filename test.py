@@ -87,8 +87,5 @@
 
 import numpy as np
 
-C_range = np.logspace(-3, 3, 7)
-gamma_range = np.logspace(-9, 3, 13)
-
-print(C_range)
-print(gamma_range)
+a = np.array(list([[0],[1],[0]]))
+print(a[:,0])

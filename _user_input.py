@@ -18,10 +18,10 @@ _integer_features = ["CreditScore", "Age", "Tenure", "NumOfProducts"]
 _output_col = "Exited"
 
 # Available models: Logistic_Regression, Random_Forest
-_model_list = ["Logistic_Regression", "svm_linear", "svm_kernel", "Random_Forest", "Xgboost"]
+_model_list = ["Logistic_Regression", "ANN"] # "Logistic_Regression", "svm_linear", "svm_kernel", "Random_Forest", "Xgboost", "ANN"
 
 # Printing level set
-verbose_high = False
+verbose_high = True
 
 ################-- Logistic Regression Grid Search Parameters --############
 
@@ -70,6 +70,14 @@ XGB_subsample = [0.6, 0.8, 1.0]
 XGB_colsample_bytree = [0.6, 0.8, 1.0]
 XGB_max_depth = [3, 4, 5]
 
+################-- ANN Grid Search Parameters --########################
+
+NN_epochs = [1, 2]
+NN_batches = [5, 10]
+NN_optimizers = ['rmsprop', 'adam']
+NN_activation = ['relu', 'sigmoid']
+NN_hidden_layers = [1, 2]
+
 #############################-- CV Parameters --############################
 
 # Number of parameter settings that are sampled
@@ -84,6 +92,9 @@ verbose = 1
 scoring = 'roc_auc'
 
 ############################################################################
+
+
+
 
 
 
