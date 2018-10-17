@@ -3,7 +3,6 @@ import numpy as np
 import _user_input as user_input
 from _plot_func import *
 from _models import *
-# from mdlp.discretization import MDLP
 from _support_func import *
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler
 import os
@@ -67,12 +66,12 @@ if user_input._categorical_features:
 # _raw_data_imp_cols.select_dtypes(include=['category']).apply(lambda x: print(pd.unique(x)))
 
 # save histogram plots of all categorical variables to data directory
-print("########################--Variable EDA--#################################\n")
+print("########################--Variable EDA--#################\n")
 
 eda_plots(data=_raw_data_imp_cols, cat_feature_list=user_input._categorical_features,
           outcome_col=user_input._output_col, output_dir=user_input._output_dir)
 
-print("#########################################################################\n")
+print("#########################################################\n")
 
 ########################################################################
 # Fit the Scalar on the data
@@ -186,11 +185,11 @@ for model in user_input._model_list:
         Xgboost(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
                            y_test=y_test)
 
-    #########################--ANN --#####################
-
-    elif model == "ANN":
-
-        ANN(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
-                           y_test=y_test)
+    # #########################--ANN --#####################
+    #
+    # elif model == "ANN":
+    #
+    #     ANN(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
+    #                        y_test=y_test)
 
 

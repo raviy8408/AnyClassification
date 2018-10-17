@@ -18,10 +18,10 @@ _integer_features = ["CreditScore", "Age", "Tenure", "NumOfProducts"]
 _output_col = "Exited"
 
 # Available models: Logistic_Regression, Random_Forest
-_model_list = ["Logistic_Regression", "ANN"] # "Logistic_Regression", "svm_linear", "svm_kernel", "Random_Forest", "Xgboost", "ANN"
+_model_list = ["Logistic_Regression", "svm_linear", "svm_kernel", "Random_Forest", "Xgboost"] # "Logistic_Regression", "svm_linear", "svm_kernel", "Random_Forest", "Xgboost"
 
 # Printing level set
-verbose_high = True
+verbose_high = False
 
 ################-- Logistic Regression Grid Search Parameters --############
 
@@ -34,7 +34,7 @@ C = [0.01, 0.05, 0.1, 0.2, 0.3, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 ################-- SVM Linear Grid Search Parameters --############
 
 # regularization parameter c = 1/lambda
-C_svm_linear = np.logspace(-3, 3, 7)
+C_svm_linear = np.logspace(-3, 3, 1)
 
 ################-- SVM Kernel Grid Search Parameters --############
 
@@ -64,19 +64,24 @@ class_weight.append(None)
 
 ################-- Xgboost Grid Search Parameters --########################
 
-XGB_min_child_weight = [1, 5, 10]
-XGB_gamma = [0.5, 1, 1.5, 2, 5]
+XGB_min_child_weight = [1,3,5,8,10]
+XGB_gamma = [0.1,0.5, 1, 1.5, 2, 5]
 XGB_subsample = [0.6, 0.8, 1.0]
-XGB_colsample_bytree = [0.6, 0.8, 1.0]
-XGB_max_depth = [3, 4, 5]
+XGB_colsample_bytree = [0.5,0.6,0.8,0.9,1.0]
+XGB_max_depth = [int(x) for x in np.linspace(3, 40, num = 36)]
+XGB_learning_rate = [0.01,0.025,0.05,0.1,0.2,0.3]
+XGB_scale_pos_weight = [1,4,6,8,10]
+XGB_objective=['binary:logistic','reg:linear','reg:logistic','binary:hinge','binary:logitraw']
+XGB_max_delta_step=[0,1,2,4,6,8,10]
 
-################-- ANN Grid Search Parameters --########################
 
-NN_epochs = [1, 2]
-NN_batches = [5, 10]
-NN_optimizers = ['rmsprop', 'adam']
-NN_activation = ['relu', 'sigmoid']
-NN_hidden_layers = [1, 2]
+# ################-- ANN Grid Search Parameters --########################
+#
+# NN_epochs = [1, 2]
+# NN_batches = [100, 1000]
+# NN_optimizers = ['rmsprop', 'adam']
+# NN_activation = ['relu', 'sigmoid']
+# NN_hidden_layers = [1, 2]
 
 #############################-- CV Parameters --############################
 

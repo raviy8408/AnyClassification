@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from _plot_func import *
 
 
 def print_categories(df, cols):
@@ -180,3 +181,45 @@ def cal_lr_p_vals(X, y, params, predictions):
     myDF3 = pd.DataFrame()
     myDF3["Coefficients"],myDF3["Standard Errors"],myDF3["t values"],myDF3["Probabilites"] = [params,sd_b,ts_b,p_values]
     print(myDF3)
+
+
+def model_performance(X_test_model_dt, y_test, model_name, model_object, output_path, prob):
+    """
+    Function to print the model performance metrics such as accuracy, confusion matrix,
+    classification report, kappa value
+    :param X_test_model_dt: X_test data
+    :param y_test: test outcome variable
+    :param model_name: name of the model
+    :param model_object: model object
+    :param output_path: file path to store the output
+    :param prob: True if model returns probability
+    :return: None
+    """
+    import os
+    from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, cohen_kappa_score
+
+    print("#################--Model Performance--#################\n")
+
+    path = output_path + model_name + "/"
+    if not os.path.isdir(path):
+        os.makedirs(path)
+
+    if prob == True:
+        # Saving ROC plot to the drive
+        plot_ROC(y_test=y_test,
+                 y_pred_prob= model_object.best_estimator_.predict_proba(X_test_model_dt)[:, 1],
+                 model_name= model_name,
+                 image_dir=path)
+        print("ROC plot saved to the drive!\n")
+
+    print("Model Performance on Test Set:\n")
+    print("Accuracy:\n")
+    print(str(accuracy_score(y_test, model_object.best_estimator_.predict(X_test_model_dt))))
+    print("\nConfusion Matrix:\n")
+    print(pd.crosstab(y_test, model_object.best_estimator_.predict(X_test_model_dt),
+                      rownames=['True'], colnames=['Predicted'], margins=True))
+    print("\nClassification Report:\n")
+    print(classification_report(y_test,model_object.best_estimator_.predict(X_test_model_dt)))
+    print("\nCohen Kappa:\n")
+    print(cohen_kappa_score(y_test, model_object.best_estimator_.predict(X_test_model_dt)))
+

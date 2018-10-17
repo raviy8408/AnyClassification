@@ -85,7 +85,10 @@
 # else:
 #     print("array is empty")
 
-import numpy as np
+# import numpy as np
+#
+# a = np.array(list([[0],[1],[0]]))
+# print(a[:,0])
 
-a = np.array(list([[0],[1],[0]]))
-print(a[:,0])
+import numpy as np
+print(np.logspace(-3, 3, 7))
