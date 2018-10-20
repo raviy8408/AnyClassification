@@ -95,101 +95,108 @@ print("\n#######################################################\n")
 # ###############################################################
 #                        model building                         #
 # ###############################################################
-available_model_list = ["Logistic_Regression", "svm_linear", "svm_kernel",  "Random_Forest", "Xgboost", "ANN"]
+available_model_list = ["Logistic_Regression", "svm_linear", "svm_kernel",  "Random_Forest", "Xgboost"]
 
-# Loop for all the models provided in user input
-for model in user_input._model_list:
+# repeat the modeling building nd testing process for n iterations
+for iter in range(user_input.train_test_iter):
 
-    print("#######################################################\n")
-    print("                 **" + model + "**                  \n")
-    print("#######################################################\n")
+    print("**********************************************************\n")
+    print("Iteration " + str(iter + 1) + " of model building....\n")
+    print("**********************************************************\n")
 
-    if model in available_model_list:
-        if model in ["Logistic_Regression", "svm_linear", "svm_kernel"]:
-            # in one hot encoding drop the last dummy variable column to avoid multi-collinearity
-            X_train[_numeric_features] = scalar.transform(X_train[_numeric_features])
-            X_test[_numeric_features] = scalar.transform(X_test[_numeric_features])
-            drop_last_col = True
-        else:
-            drop_last_col = False
-    else:
-        print(model + " is not present in existing model list!\n")
-        continue
-
-    #########################################################################
-    # One hot encoding of categorical variables
-    #########################################################################
-    if user_input._categorical_features:
-        print("Performing One Hot Encoding of Categorical Variables...\n")
-
-        X_train_labelEncoded, X_test_labelEncoded = labelEncoder_cat_features(X_train=X_train, X_test=X_test,
-                                                                              cat_feature_list=user_input._categorical_features)
-
-        X_train_oneHotEncoded, X_test_oneHotEncoded = oneHotEncoder_cat_features(X_train_labelEncoded=X_train_labelEncoded,
-                                                                                 X_test_labelEncoded=X_test_labelEncoded,
-                                                                                 cat_feature_list=user_input._categorical_features,
-                                                                                 drop_last=drop_last_col)
-        # assigning final train and test X data if one hot encoding is done
-        X_train_model_dt = X_train_oneHotEncoded
-        X_test_model_dt = X_test_oneHotEncoded
-
-
-    else:
-        # assigning final train and test X data if one hot encoding is not done
-        X_train_model_dt = X_train
-        X_test_model_dt = X_test
-
-    if user_input.verbose_high == True:
-        print("Sample Model Input Data:\n")
-        print(X_train_model_dt.head())
-        print("\nColumn Types of Final Data:")
-        print(X_train_model_dt.dtypes)
+    # Loop for all the models provided in user input
+    for model in user_input._model_list:
 
         print("#######################################################\n")
+        print("                 **" + model + "**                  \n")
+        print("#######################################################\n")
 
-    #######################--Logistic Regression--##################
+        if model in available_model_list:
+            if model in ["Logistic_Regression", "svm_linear", "svm_kernel"]:
+                # in one hot encoding drop the last dummy variable column to avoid multi-collinearity
+                X_train[_numeric_features] = scalar.transform(X_train[_numeric_features])
+                X_test[_numeric_features] = scalar.transform(X_test[_numeric_features])
+                drop_last_col = True
+            else:
+                drop_last_col = False
+        else:
+            print(model + " is not present in existing model list!\n")
+            continue
 
-    if model == "Logistic_Regression":
+        #########################################################################
+        # One hot encoding of categorical variables
+        #########################################################################
+        if user_input._categorical_features:
+            print("Performing One Hot Encoding of Categorical Variables...\n")
 
-        Logistic_Regresion(X_train_model_dt = X_train_model_dt, y_train = y_train, X_test_model_dt = X_test_model_dt,
-                           y_test = y_test)
+            X_train_labelEncoded, X_test_labelEncoded = labelEncoder_cat_features(X_train=X_train, X_test=X_test,
+                                                                                  cat_feature_list=user_input._categorical_features)
 
-    ############################--SVM Linear--######################
-
-    elif model == "svm_linear":
-
-        SVM_Linear(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
-                   y_test=y_test)
-
-
-    ############################--SVM Kernel--######################
-
-    elif model == "svm_kernel":
-
-        SVM_Kernel(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
-                           y_test=y_test)
+            X_train_oneHotEncoded, X_test_oneHotEncoded = oneHotEncoder_cat_features(X_train_labelEncoded=X_train_labelEncoded,
+                                                                                     X_test_labelEncoded=X_test_labelEncoded,
+                                                                                     cat_feature_list=user_input._categorical_features,
+                                                                                     drop_last=drop_last_col)
+            # assigning final train and test X data if one hot encoding is done
+            X_train_model_dt = X_train_oneHotEncoded
+            X_test_model_dt = X_test_oneHotEncoded
 
 
-    #########################--Random Forest--#####################
+        else:
+            # assigning final train and test X data if one hot encoding is not done
+            X_train_model_dt = X_train
+            X_test_model_dt = X_test
 
-    elif model == "Random_Forest":
+        if user_input.verbose_high == True:
+            print("Sample Model Input Data:\n")
+            print(X_train_model_dt.head())
+            print("\nColumn Types of Final Data:")
+            print(X_train_model_dt.dtypes)
 
-        Random_Forest(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
-                           y_test=y_test)
+            print("#######################################################\n")
+
+        #######################--Logistic Regression--##################
+
+        if model == "Logistic_Regression":
+
+            Logistic_Regresion(X_train_model_dt = X_train_model_dt, y_train = y_train, X_test_model_dt = X_test_model_dt,
+                               y_test = y_test, train_test_iter_num=iter + 1)
+
+        ############################--SVM Linear--######################
+
+        elif model == "svm_linear":
+
+            SVM_Linear(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
+                       y_test=y_test, train_test_iter_num=iter + 1)
 
 
-    #########################-- XGBoost--#####################
+        ############################--SVM Kernel--######################
 
-    elif model == "Xgboost":
+        elif model == "svm_kernel":
 
-        Xgboost(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
-                           y_test=y_test)
+            SVM_Kernel(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
+                               y_test=y_test, train_test_iter_num=iter + 1)
 
-    # #########################--ANN --#####################
-    #
-    # elif model == "ANN":
-    #
-    #     ANN(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
-    #                        y_test=y_test)
+
+        #########################--Random Forest--#####################
+
+        elif model == "Random_Forest":
+
+            Random_Forest(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
+                               y_test=y_test, train_test_iter_num=iter + 1)
+
+
+        #########################-- XGBoost--#####################
+
+        elif model == "Xgboost":
+
+            Xgboost(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
+                               y_test=y_test, train_test_iter_num=iter + 1)
+
+        # #########################--ANN --#####################
+        #
+        # elif model == "ANN":
+        #
+        #     ANN(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
+        #                        y_test=y_test)
 
 

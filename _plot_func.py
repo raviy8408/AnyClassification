@@ -112,10 +112,19 @@ def eda_plots(data, cat_feature_list, outcome_col, output_dir):
     print("Completed!\n")
 
 
-def plot_ROC(y_test, y_pred_prob, model_name, image_dir):
+def plot_ROC(y_test, y_pred_prob, model_name, image_dir, **kwargs):
 
     from sklearn.metrics import roc_auc_score
     from sklearn.metrics import roc_curve
+
+    if ('train_test_iter_num' in kwargs.keys()):
+        train_test_iter_num = kwargs.get("train_test_iter_num")
+    else:
+        train_test_iter_num = 1
+
+    path = image_dir + "ROC/"
+    if not os.path.isdir(path):
+        os.makedirs(path)
 
     rcParams['figure.figsize'] = 8, 6
     logit_roc_auc = roc_auc_score(y_test, y_pred_prob)
@@ -129,7 +138,7 @@ def plot_ROC(y_test, y_pred_prob, model_name, image_dir):
     plt.ylabel('True Positive Rate')
     plt.title('Receiver operating characteristic')
     plt.legend(loc="lower right")
-    plt.savefig(image_dir + 'ROC')
+    plt.savefig(path + 'ROC_iter_' + str(train_test_iter_num))
     plt.close(fig)
 
 def plt_feature_imp(importances, feature_list, n_top_features, image_dir):

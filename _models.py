@@ -7,8 +7,14 @@ import pandas as pd
 import numpy as np
 
 
-def Logistic_Regresion(X_train_model_dt, y_train, X_test_model_dt, y_test):
+def Logistic_Regresion(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
     from sklearn.linear_model import LogisticRegression
+
+    # get the tran test iteration number to store the results per iter
+    if ('train_test_iter_num' in kwargs.keys()):
+        train_test_iter_num = kwargs.get("train_test_iter_num")
+    else:
+        train_test_iter_num = 1
 
     random_grid = {'penalty': user_input.penalty,
                    'C': user_input.C}
@@ -19,7 +25,6 @@ def Logistic_Regresion(X_train_model_dt, y_train, X_test_model_dt, y_test):
         max_n_iter *= len(value)
 
     logreg = LogisticRegression(class_weight='balanced')
-    # logreg.fit(X_train_model_dt, y_train[user_input._output_col])
 
     lr_random = RandomizedSearchCV(estimator=logreg, param_distributions=random_grid,
                                    n_iter=min(user_input.n_iter, max_n_iter),
@@ -46,19 +51,25 @@ def Logistic_Regresion(X_train_model_dt, y_train, X_test_model_dt, y_test):
 
     model_performance(X_test_model_dt=X_test_model_dt, y_test=y_test[user_input._output_col],
                       model_name="Logistic_Regression", model_object=lr_random,
-                      output_path=user_input._output_dir + "Model_Result/", prob=True)
+                      output_path=user_input._output_dir + "Model_Result/", prob=True,
+                      train_test_iter_num=train_test_iter_num)
 
     print("#######################################################\n")
 
 
 
-def SVM_Linear(X_train_model_dt, y_train, X_test_model_dt, y_test):
+def SVM_Linear(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
     from sklearn.svm import SVC
 
-    print("Running linear SVM..\n")
+    # get the tran test iteration number to store the results per iter
+    if ('train_test_iter_num' in kwargs.keys()):
+        train_test_iter_num = kwargs.get("train_test_iter_num")
+    else:
+        train_test_iter_num = 1
+
+    # print("Running linear SVM..\n")
 
     random_grid = {'C': user_input.C_svm_linear, 'kernel': ['linear']}
-    # {'C': [1, 10, 100, 1000], 'gamma': [0.001, 0.0001], 'kernel': ['rbf']},
 
     # length of exhaustive set of parameter combination
     max_n_iter = 1
@@ -87,15 +98,22 @@ def SVM_Linear(X_train_model_dt, y_train, X_test_model_dt, y_test):
 
     model_performance(X_test_model_dt=X_test_model_dt, y_test=y_test[user_input._output_col],
                       model_name="SVM_Linear", model_object=svc_linear_random,
-                      output_path=user_input._output_dir + "Model_Result/", prob=False)
+                      output_path=user_input._output_dir + "Model_Result/", prob=False,
+                      train_test_iter_num=train_test_iter_num)
 
     print("#######################################################\n")
 
 
-def SVM_Kernel(X_train_model_dt, y_train, X_test_model_dt, y_test):
+def SVM_Kernel(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
     from sklearn.svm import SVC
 
-    print("Running SVM Kernel..\n")
+    # get the tran test iteration number to store the results per iter
+    if ('train_test_iter_num' in kwargs.keys()):
+        train_test_iter_num = kwargs.get("train_test_iter_num")
+    else:
+        train_test_iter_num = 1
+
+    # print("Running SVM Kernel..\n")
 
     random_grid = {'C': user_input.C_svm_kernel, 'gamma': user_input.gamma, 'kernel': user_input.kernel}
 
@@ -122,19 +140,24 @@ def SVM_Kernel(X_train_model_dt, y_train, X_test_model_dt, y_test):
     print("Best Model Parameter Set for Highest " + user_input.scoring + ":\n")
     print(svc_kernel_random.best_params_)
 
-    # print("\n#########################################################\n")
-
     print("\n#######################################################\n")
 
     model_performance(X_test_model_dt=X_test_model_dt, y_test=y_test[user_input._output_col],
                       model_name="SVM_Kernel", model_object=svc_kernel_random,
-                      output_path=user_input._output_dir + "Model_Result/", prob=False)
+                      output_path=user_input._output_dir + "Model_Result/", prob=False,
+                      train_test_iter_num=train_test_iter_num)
 
     print("##########################################################\n")
 
 
-def Random_Forest(X_train_model_dt, y_train, X_test_model_dt, y_test):
+def Random_Forest(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
     from sklearn.ensemble import RandomForestClassifier
+
+    # get the tran test iteration number to store the results per iter
+    if ('train_test_iter_num' in kwargs.keys()):
+        train_test_iter_num = kwargs.get("train_test_iter_num")
+    else:
+        train_test_iter_num = 1
 
     random_grid = {'n_estimators': user_input.n_estimators,
                    'max_features': user_input.max_features,
@@ -186,13 +209,20 @@ def Random_Forest(X_train_model_dt, y_train, X_test_model_dt, y_test):
 
     model_performance(X_test_model_dt=X_test_model_dt, y_test=y_test[user_input._output_col],
                       model_name="Random_Forest", model_object=rf_random,
-                      output_path=user_input._output_dir + "Model_Result/", prob=True)
+                      output_path=user_input._output_dir + "Model_Result/", prob=True,
+                      train_test_iter_num=train_test_iter_num)
 
     print("###########################################################\n")
 
 
-def Xgboost(X_train_model_dt, y_train, X_test_model_dt, y_test):
+def Xgboost(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
     from xgboost import XGBClassifier
+
+    # get the tran test iteration number to store the results per iter
+    if ('train_test_iter_num' in kwargs.keys()):
+        train_test_iter_num = kwargs.get("train_test_iter_num")
+    else:
+        train_test_iter_num = 1
 
     random_grid = {
         'min_child_weight': user_input.XGB_min_child_weight,
@@ -248,7 +278,8 @@ def Xgboost(X_train_model_dt, y_train, X_test_model_dt, y_test):
 
     model_performance(X_test_model_dt=X_test_model_dt, y_test=y_test[user_input._output_col],
                       model_name="XgBoost", model_object=XGBC_random,
-                      output_path=user_input._output_dir + "Model_Result/", prob=True)
+                      output_path=user_input._output_dir + "Model_Result/", prob=True,
+                      train_test_iter_num=train_test_iter_num)
 
     print("###########################################################\n")
 

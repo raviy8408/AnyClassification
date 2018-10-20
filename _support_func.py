@@ -33,8 +33,8 @@ def test_train_splitter(df, y, cat_feature_list, int_feature_list, outcome_type=
     '''
     from sklearn.model_selection import train_test_split
 
-    X_train, X_test, y_train, y_test = train_test_split(df.drop([y], axis=1).as_matrix(),
-                                                        df[y].as_matrix(), test_size=0.2)
+    X_train, X_test, y_train, y_test = train_test_split(df.drop([y], axis=1).values,
+                                                        df[y], test_size=0.2)
 
     # test train dataframe creation
     X_train_df = pd.DataFrame(data=X_train, columns=df.drop([y], axis=1).columns.values)
@@ -161,7 +161,7 @@ def cal_lr_p_vals(X, y, params, predictions):
     from scipy import stats
 
     newX = pd.DataFrame({"Constant":np.ones(len(X))}).join(pd.DataFrame(X))
-    MSE = (sum((y-predictions)**2))/(len(newX)-len(newX.columns))
+    MSE = (sum((y.values-predictions)**2))/(len(newX)-len(newX.columns))
 
     # Note if you don't want to use a DataFrame replace the two lines above with
     # newX = np.append(np.ones((len(X),1)), X, axis=1)
@@ -183,7 +183,7 @@ def cal_lr_p_vals(X, y, params, predictions):
     print(myDF3)
 
 
-def model_performance(X_test_model_dt, y_test, model_name, model_object, output_path, prob):
+def model_performance(X_test_model_dt, y_test, model_name, model_object, output_path, prob, **kwargs):
     """
     Function to print the model performance metrics such as accuracy, confusion matrix,
     classification report, kappa value
@@ -198,6 +198,11 @@ def model_performance(X_test_model_dt, y_test, model_name, model_object, output_
     import os
     from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, cohen_kappa_score
 
+    if ('train_test_iter_num' in kwargs.keys()):
+        train_test_iter_num = kwargs.get("train_test_iter_num")
+    else:
+        train_test_iter_num = 1
+
     print("#################--Model Performance--#################\n")
 
     path = output_path + model_name + "/"
@@ -209,7 +214,7 @@ def model_performance(X_test_model_dt, y_test, model_name, model_object, output_
         plot_ROC(y_test=y_test,
                  y_pred_prob= model_object.best_estimator_.predict_proba(X_test_model_dt)[:, 1],
                  model_name= model_name,
-                 image_dir=path)
+                 image_dir=path, train_test_iter_num = train_test_iter_num)
         print("ROC plot saved to the drive!\n")
 
     print("Model Performance on Test Set:\n")

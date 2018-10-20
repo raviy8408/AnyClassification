@@ -74,7 +74,6 @@ XGB_scale_pos_weight = [1,4,6,8,10]
 XGB_objective=['binary:logistic','reg:linear','reg:logistic','binary:hinge','binary:logitraw']
 XGB_max_delta_step=[0,1,2,4,6,8,10]
 
-
 # ################-- ANN Grid Search Parameters --########################
 #
 # NN_epochs = [1, 2]
@@ -86,7 +85,7 @@ XGB_max_delta_step=[0,1,2,4,6,8,10]
 #############################-- CV Parameters --############################
 
 # Number of parameter settings that are sampled
-n_iter = 5
+n_iter = 1
 # cross validation fold
 cv = 5
 # Integer value, higher the value more text is printed
@@ -95,6 +94,9 @@ verbose = 1
 # choose from ‘accuracy’, ‘average_precision’,‘f1’, ‘f1_micro’, ‘f1_macro’, ‘f1_weighted’, ‘f1_samples’,‘neg_log_loss’,
 # ‘precision’ etc., ‘recall’ etc., roc_auc’
 scoring = 'roc_auc'
+
+# no of test train iterations to run the modeling with different test set
+train_test_iter = 2
 
 ############################################################################
 
