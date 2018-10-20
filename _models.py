@@ -39,7 +39,7 @@ def Logistic_Regresion(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwa
 
     print("Best " + user_input.scoring + " Score Obtained:")
     print(lr_random.best_score_)
-    print("Best Model Parameter Set for Highest " + user_input.scoring + ":\n")
+    print("\nBest Model Parameter Set for Highest " + user_input.scoring + ":")
     print(lr_random.best_params_)
 
     print("\n P values for variables:\n")
@@ -91,7 +91,7 @@ def SVM_Linear(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
 
     print("Best " + user_input.scoring + " Score Obtained:")
     print(svc_linear_random.best_score_)
-    print("Best Model Parameter Set for Highest " + user_input.scoring + ":\n")
+    print("\nBest Model Parameter Set for Highest " + user_input.scoring + ":")
     print(svc_linear_random.best_params_)
 
     print("\n######################################################\n")
@@ -137,7 +137,7 @@ def SVM_Kernel(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
 
     print("Best " + user_input.scoring + " Score Obtained:")
     print(svc_kernel_random.best_score_)
-    print("Best Model Parameter Set for Highest " + user_input.scoring + ":\n")
+    print("\nBest Model Parameter Set for Highest " + user_input.scoring + ":")
     print(svc_kernel_random.best_params_)
 
     print("\n#######################################################\n")
@@ -192,7 +192,7 @@ def Random_Forest(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
 
     print("Best " + user_input.scoring + " Score Obtained:")
     print(rf_random.best_score_)
-    print("Best Model Parameter Set for Highest " + user_input.scoring + ":\n")
+    print("\nBest Model Parameter Set for Highest " + user_input.scoring + ":")
     print(rf_random.best_params_)
 
     importances = rf_random.best_estimator_.feature_importances_
@@ -203,7 +203,7 @@ def Random_Forest(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
 
     plt_feature_imp(importances=importances, feature_list=X_train_model_dt.columns.values,
                     n_top_features=min(len(X_train_model_dt.columns.values), 30),
-                    image_dir=path)
+                    image_dir=path, train_test_iter_num=train_test_iter_num)
 
     print("\n#########################################################\n")
 
@@ -261,7 +261,7 @@ def Xgboost(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
 
     print("Best " + user_input.scoring + " Score Obtained:")
     print(XGBC_random.best_score_)
-    print("Best Model Parameter Set for Highest " + user_input.scoring + ":\n")
+    print("\nBest Model Parameter Set for Highest " + user_input.scoring + ":")
     print(XGBC_random.best_params_)
 
     importances = XGBC_random.best_estimator_.feature_importances_
@@ -272,7 +272,7 @@ def Xgboost(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
 
     plt_feature_imp(importances=importances, feature_list=X_train_model_dt.columns.values,
                     n_top_features=min(len(X_train_model_dt.columns.values), 30),
-                    image_dir=path)
+                    image_dir=path, train_test_iter_num=train_test_iter_num)
 
     print("\n#########################################################\n")
 

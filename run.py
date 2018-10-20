@@ -101,7 +101,7 @@ available_model_list = ["Logistic_Regression", "svm_linear", "svm_kernel",  "Ran
 for iter in range(user_input.train_test_iter):
 
     print("**********************************************************\n")
-    print("Iteration " + str(iter + 1) + " of model building....\n")
+    print("Iteration " + str(iter + 1) + " of model building and testing....\n")
     print("**********************************************************\n")
 
     # Loop for all the models provided in user input

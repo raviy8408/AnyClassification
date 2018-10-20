@@ -77,7 +77,7 @@ def eda_plots(data, cat_feature_list, outcome_col, output_dir):
     :return:
     """
     print("Saving Numerical Variable Histogram to Output Directory...")
-    path = output_dir + "eda_plots/" + "numerical_variables/"
+    path = output_dir + "EDA_Plots/" + "Numerical_Variables/"
     if not os.path.isdir(path):
         os.makedirs(path)
     # else:
@@ -89,7 +89,7 @@ def eda_plots(data, cat_feature_list, outcome_col, output_dir):
 
     if cat_feature_list:
         print("Saving Categorical Variable Histogram to Output Directory...")
-        path = output_dir + "eda_plots/" + "categorical_variables/"
+        path = output_dir + "EDA_Plots/" + "Categorical_Variables/"
         if not os.path.isdir(path):
             os.makedirs(path)
         # else:
@@ -100,7 +100,7 @@ def eda_plots(data, cat_feature_list, outcome_col, output_dir):
             plot_count_hist(data=data, field=col, num_bar=bar_count, x_lim=bar_count + 0.01, dir_name=path)
 
     print("Saving Outcome Variable Histogram to Output Directory...")
-    path = output_dir + "eda_plots/" + "outcome_variables/"
+    path = output_dir + "EDA_Plots/" + "Outcome_Variables/"
     if not os.path.isdir(path):
         os.makedirs(path)
     # else:
@@ -138,10 +138,20 @@ def plot_ROC(y_test, y_pred_prob, model_name, image_dir, **kwargs):
     plt.ylabel('True Positive Rate')
     plt.title('Receiver operating characteristic')
     plt.legend(loc="lower right")
-    plt.savefig(path + 'ROC_iter_' + str(train_test_iter_num))
+    plt.savefig(path + 'ROC_iter_' + str(train_test_iter_num) + '.png')
     plt.close(fig)
 
-def plt_feature_imp(importances, feature_list, n_top_features, image_dir):
+def plt_feature_imp(importances, feature_list, n_top_features, image_dir, **kwargs):
+
+    # get the tran test iteration number to store the results per iter
+    if ('train_test_iter_num' in kwargs.keys()):
+        train_test_iter_num = kwargs.get("train_test_iter_num")
+    else:
+        train_test_iter_num = 1
+
+    path = image_dir + "Feature_Importance/"
+    if not os.path.isdir(path):
+        os.makedirs(path)
 
     # Sort feature importances in descending order
     indices = np.argsort(importances)[::-1]
@@ -159,5 +169,5 @@ def plt_feature_imp(importances, feature_list, n_top_features, image_dir):
     # Create plot title
     plt.title("Feature Importance")
     # Show plot
-    plt.savefig(image_dir + "feature_imp" + '.png', bbox_inches='tight')
+    plt.savefig(path + "feature_imp_iter_" + str(train_test_iter_num) + '.png', bbox_inches='tight')
     plt.close(fig)
