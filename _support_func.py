@@ -182,6 +182,17 @@ def cal_lr_p_vals(X, y, params, predictions):
     myDF3["Coefficients"],myDF3["Standard Errors"],myDF3["t values"],myDF3["Probabilites"] = [params,sd_b,ts_b,p_values]
     print(myDF3)
 
+def appendDFToCSV_void(df, csvFilePath, sep=","):
+    import os
+    if not os.path.isfile(csvFilePath):
+        df.to_csv(csvFilePath, mode='a', index=True, sep=sep)
+    elif len(df.columns) != len(pd.read_csv(csvFilePath, nrows=1, sep=sep, index_col=0).columns):
+        raise Exception("Columns do not match!! Dataframe has " + str(len(df.columns)) + " columns. CSV file has " + str(len(pd.read_csv(csvFilePath, nrows=1, sep=sep).columns)) + " columns.")
+    elif not (df.columns == pd.read_csv(csvFilePath, nrows=1, sep=sep, index_col=0).columns).all():
+        raise Exception("Columns and column order of dataframe and csv file do not match!!")
+    else:
+        df.to_csv(csvFilePath, mode='a', index=True, sep=sep, header=False)
+
 
 def model_performance(X_test_model_dt, y_test, model_name, model_object, output_path, prob, **kwargs):
     """
@@ -196,7 +207,8 @@ def model_performance(X_test_model_dt, y_test, model_name, model_object, output_
     :return: None
     """
     import os
-    from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, cohen_kappa_score
+    from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, cohen_kappa_score, \
+        recall_score, precision_score, f1_score
 
     if ('train_test_iter_num' in kwargs.keys()):
         train_test_iter_num = kwargs.get("train_test_iter_num")
@@ -217,14 +229,46 @@ def model_performance(X_test_model_dt, y_test, model_name, model_object, output_
                  image_dir=path, train_test_iter_num = train_test_iter_num)
         print("ROC plot saved to the drive!\n")
 
+    y_pred = model_object.best_estimator_.predict(X_test_model_dt)
+
+    _result_dict = {'accuracy' : accuracy_score(y_true=y_test, y_pred=y_pred),
+                    'label_1_recall' : recall_score(y_true=y_test, y_pred=y_pred, pos_label=1),
+                    'label_1_precision' : precision_score(y_true=y_test, y_pred=y_pred, pos_label=1),
+                    'label_1_f1_score' : f1_score(y_true=y_test, y_pred=y_pred, pos_label=1),
+                    'label_0_recall': recall_score(y_true=y_test, y_pred=y_pred, pos_label=0),
+                    'label_0_precision': precision_score(y_true=y_test, y_pred=y_pred, pos_label=0),
+                    'label_0_f1_score': f1_score(y_true=y_test, y_pred=y_pred, pos_label=0),
+                    'kappa' : cohen_kappa_score(y_test, y_pred)
+                    }
+
     print("Model Performance on Test Set:\n")
     print("Accuracy:\n")
-    print(str(accuracy_score(y_test, model_object.best_estimator_.predict(X_test_model_dt))))
+    print(str(_result_dict.get('accuracy')))
     print("\nConfusion Matrix:\n")
-    print(pd.crosstab(y_test, model_object.best_estimator_.predict(X_test_model_dt),
-                      rownames=['True'], colnames=['Predicted'], margins=True))
+    print(pd.crosstab(y_test, y_pred,rownames=['True'], colnames=['Predicted'], margins=True))
     print("\nClassification Report:\n")
-    print(classification_report(y_test,model_object.best_estimator_.predict(X_test_model_dt)))
+    print(classification_report(y_test,y_pred))
     print("\nCohen Kappa:\n")
-    print(cohen_kappa_score(y_test, model_object.best_estimator_.predict(X_test_model_dt)))
+    print(_result_dict.get('kappa'))
+
+    print("Saving iteration result to drive..")
+    if train_test_iter_num <=1:
+        _result = pd.DataFrame(_result_dict, index=['iter' + str(train_test_iter_num)])
+        _result.to_csv(path + 'result.tsv', sep='\t')
+    else:
+        _result = pd.DataFrame(_result_dict, index=['iter' + str(train_test_iter_num)])
+        appendDFToCSV_void(df=_result, csvFilePath=path + 'result.tsv', sep='\t')
+
+def result_prep(path, train_test_iter_count):
+
+    result = pd.read_csv(path, sep="\t", index_col=0)
+
+    result_final = result.T
+    result_final['avg'] = result_final.iloc[:, 0:train_test_iter_count].mean(axis=1)
+    result_final['std'] = result_final.iloc[:, 0:train_test_iter_count].std(axis=1)
+
+    print(result_final)
+
+    result_final.to_csv(path, sep="\t")
+
 

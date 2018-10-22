@@ -18,7 +18,7 @@ _integer_features = ["CreditScore", "Age", "Tenure", "NumOfProducts"]
 _output_col = "Exited"
 
 # Available models: Logistic_Regression, Random_Forest
-_model_list = ["Logistic_Regression", "svm_linear", "svm_kernel", "Random_Forest", "Xgboost"] # "Logistic_Regression", "svm_linear", "svm_kernel", "Random_Forest", "Xgboost"
+_model_list = ["Logistic_Regression"] # "Logistic_Regression", "SVM_Linear", "SVM_Kernel", "Random_Forest", "Xgboost"
 
 # Printing level set
 verbose_high = False
@@ -96,7 +96,7 @@ verbose = 1
 scoring = 'roc_auc'
 
 # no of test train iterations to run the modeling with different test set
-train_test_iter = 2
+train_test_iter = 1
 
 ############################################################################
 

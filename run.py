@@ -95,7 +95,7 @@ print("\n#######################################################\n")
 # ###############################################################
 #                        model building                         #
 # ###############################################################
-available_model_list = ["Logistic_Regression", "svm_linear", "svm_kernel",  "Random_Forest", "Xgboost"]
+available_model_list = ["Logistic_Regression", "SVM_Linear", "SVM_Kernel",  "Random_Forest", "Xgboost"]
 
 # repeat the modeling building nd testing process for n iterations
 for iter in range(user_input.train_test_iter):
@@ -163,7 +163,7 @@ for iter in range(user_input.train_test_iter):
 
         ############################--SVM Linear--######################
 
-        elif model == "svm_linear":
+        elif model == "SVM_Linear":
 
             SVM_Linear(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
                        y_test=y_test, train_test_iter_num=iter + 1)
@@ -171,7 +171,7 @@ for iter in range(user_input.train_test_iter):
 
         ############################--SVM Kernel--######################
 
-        elif model == "svm_kernel":
+        elif model == "SVM_Kernel":
 
             SVM_Kernel(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
                                y_test=y_test, train_test_iter_num=iter + 1)
@@ -198,5 +198,23 @@ for iter in range(user_input.train_test_iter):
         #
         #     ANN(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
         #                        y_test=y_test)
+
+
+# ###############################################################
+#                       Result Preparation                      #
+# ###############################################################
+
+print("Result for all train test iterations:\n")
+
+for model in user_input._model_list:
+
+    path = user_input._output_dir + "/Model_Result/" + model + "/result.tsv"
+
+    print('\n' + model + ":\n")
+    result_prep(path=path, train_test_iter_count=user_input.train_test_iter)
+
+print("#######################################################\n")
+
+
 
 
