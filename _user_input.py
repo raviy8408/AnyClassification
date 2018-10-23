@@ -10,7 +10,9 @@ _output_dir = "C://files/churn_test/output/"
 
 _input_file_name = "Churn_Modelling.csv"
 
-_redundant_cols = ["RowNumber", "CustomerId", "Surname"]
+_redundant_cols = ["RowNumber", "Surname"]
+
+_ID_col = ["CustomerId"]
 
 _categorical_features = ["Geography", "Gender", "HasCrCard", "IsActiveMember"]
 _integer_features = ["CreditScore", "Age", "Tenure", "NumOfProducts"]
@@ -18,7 +20,7 @@ _integer_features = ["CreditScore", "Age", "Tenure", "NumOfProducts"]
 _output_col = "Exited"
 
 # Available models: Logistic_Regression, Random_Forest
-_model_list = ["Logistic_Regression"] # "Logistic_Regression", "SVM_Linear", "SVM_Kernel", "Random_Forest", "Xgboost"
+_model_list = ["Logistic_Regression", "SVM_Linear", "SVM_Kernel", "Random_Forest", "Xgboost"] # "Logistic_Regression", "SVM_Linear", "SVM_Kernel", "Random_Forest", "Xgboost"
 
 # Printing level set
 verbose_high = False
@@ -82,6 +84,13 @@ XGB_max_delta_step=[0,1,2,4,6,8,10]
 # NN_activation = ['relu', 'sigmoid']
 # NN_hidden_layers = [1, 2]
 
+#############################-- Train Test Parameters --############################
+
+# train test split fraction
+train_test_split_frac = 0.8
+# no of test train iterations to run the modeling with different test set, to ensure that model is not over fitted
+train_test_iter = 3
+
 #############################-- CV Parameters --############################
 
 # Number of parameter settings that are sampled
@@ -94,9 +103,6 @@ verbose = 1
 # choose from ‘accuracy’, ‘average_precision’,‘f1’, ‘f1_micro’, ‘f1_macro’, ‘f1_weighted’, ‘f1_samples’,‘neg_log_loss’,
 # ‘precision’ etc., ‘recall’ etc., roc_auc’
 scoring = 'roc_auc'
-
-# no of test train iterations to run the modeling with different test set
-train_test_iter = 1
 
 ############################################################################
 

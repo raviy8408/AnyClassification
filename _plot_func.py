@@ -67,7 +67,7 @@ def plot_count_hist(data, field, num_bar, x_lim, dir_name , **kwargs):
     plt.savefig(save_file, bbox_inches='tight')
     plt.close(fig)
 
-def eda_plots(data, cat_feature_list, outcome_col, output_dir):
+def eda_plots(data, cat_feature_list, outcome_col, _ID_col, output_dir):
     """
     Generated univariate and bivariate data plots to provide data insights
     :param data: input data containing both X and y
@@ -84,7 +84,7 @@ def eda_plots(data, cat_feature_list, outcome_col, output_dir):
     #     shutil.rmtree(path=path)
     #     os.makedirs(path)
     for col in (set(list(data)) - set(cat_feature_list) - set(
-            list([outcome_col]))):
+            list([outcome_col])) - set(_ID_col)):
         plot_num_value_hist(data=data[col], field=col, n_bin=20, dir_name=path)
 
     if cat_feature_list:

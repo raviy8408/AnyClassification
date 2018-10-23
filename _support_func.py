@@ -22,7 +22,7 @@ def column_index(df, query_cols):
     return sidx[np.searchsorted(cols, query_cols, sorter=sidx)]
 
 
-def test_train_splitter(df, y, cat_feature_list, int_feature_list, outcome_type='category', split_frac=0.8):
+def test_train_splitter(df, y, cat_feature_list, int_feature_list, ID_col, outcome_type='category', split_frac=0.8):
     '''
     Splits the data into test and train in the ration provided and returns 4 data frames:
     x_train, y_train, x_test, y_test
@@ -52,12 +52,15 @@ def test_train_splitter(df, y, cat_feature_list, int_feature_list, outcome_type=
         X_train_df[int_feature_list] = X_train_df[int_feature_list].apply(lambda x: x.astype('int64'))
         X_test_df[int_feature_list] = X_test_df[int_feature_list].apply(lambda x: x.astype('int64'))
 
-    _non_float_feature_list = cat_feature_list + [y] + int_feature_list
+    _non_float_feature_list = cat_feature_list + [y] + int_feature_list + ID_col
 
     X_train_df[df.columns.difference(_non_float_feature_list)] = X_train_df[
         df.columns.difference(_non_float_feature_list)].apply(lambda x: x.astype('float'))
     X_test_df[df.columns.difference(_non_float_feature_list)] = X_test_df[
         df.columns.difference(_non_float_feature_list)].apply(lambda x: x.astype('float'))
+
+    X_train_df[ID_col] = X_train_df[ID_col].astype(str)
+    X_test_df[ID_col] = X_test_df[ID_col].astype(str)
 
     y_train_df[[y]] = y_train_df[[y]].apply(lambda x: x.astype('category'))
     y_test_df[[y]] = y_test_df[[y]].apply(lambda x: x.astype('category'))
@@ -65,7 +68,7 @@ def test_train_splitter(df, y, cat_feature_list, int_feature_list, outcome_type=
     return X_train_df, y_train_df, X_test_df, y_test_df
 
 
-def labelEncoder_cat_features(X_train, X_test, cat_feature_list):
+def labelEncoder_cat_features(X_train, X_test, cat_feature_list, **kwargs):
     '''
     Converts all categorical features to numerical levels
     :param X_train: train data frame
@@ -75,6 +78,11 @@ def labelEncoder_cat_features(X_train, X_test, cat_feature_list):
     '''
     from sklearn.preprocessing import LabelEncoder
 
+    if ('ID_col' in kwargs.keys()):
+        ID_col = kwargs.get('ID_col')
+    else:
+        ID_col = []
+
     X_train[cat_feature_list] = X_train[cat_feature_list].apply(lambda x: x.astype(str))
     X_test[cat_feature_list] = X_test[cat_feature_list].apply(lambda x: x.astype(str))
 
@@ -82,7 +90,7 @@ def labelEncoder_cat_features(X_train, X_test, cat_feature_list):
     # Iterating over all the common columns in train and test
     for col in X_test.columns.values:
         # Encoding only categorical variables
-        if X_test[col].dtypes == 'object':
+        if (X_test[col].dtypes == 'object') and (col not in ID_col):
             # Using whole data to form an exhaustive list of levels
             data = X_train[col].append(X_test[col])
             le.fit(data.values)
@@ -215,6 +223,11 @@ def model_performance(X_test_model_dt, y_test, model_name, model_object, output_
     else:
         train_test_iter_num = 1
 
+    if ('ID' in kwargs.keys()):
+        ID = kwargs.get("ID")
+    else:
+        ID = []
+
     print("#################--Model Performance--#################\n")
 
     path = output_path + model_name + "/"
@@ -251,6 +264,7 @@ def model_performance(X_test_model_dt, y_test, model_name, model_object, output_
     print("\nCohen Kappa:\n")
     print(_result_dict.get('kappa'))
 
+    ######################################################
     print("Saving iteration result to drive..")
     if train_test_iter_num <=1:
         _result = pd.DataFrame(_result_dict, index=['iter' + str(train_test_iter_num)])
@@ -258,6 +272,21 @@ def model_performance(X_test_model_dt, y_test, model_name, model_object, output_
     else:
         _result = pd.DataFrame(_result_dict, index=['iter' + str(train_test_iter_num)])
         appendDFToCSV_void(df=_result, csvFilePath=path + 'result.tsv', sep='\t')
+
+    ######################################################
+    print("Saving predictions to drive..")
+    path = output_path + model_name + "/prediction/"
+    if not os.path.isdir(path):
+        os.makedirs(path)
+
+    if len(ID) == len(y_test):
+        pred_df = pd.DataFrame({'actual' : y_test, 'pred' : y_pred}, index=y_test.index)
+        ID.set_index(y_test.index.values, drop = True, inplace = True)
+        pred_df = pd.concat([ID, pred_df], axis=1)
+        pred_df.to_csv(path + 'predictions_iter' + str(train_test_iter_num) + '.tsv', sep="\t")
+    else:
+        pred_df = pd.DataFrame({'actual': y_test, 'pred': y_pred}, index=y_test.index)
+        pred_df.to_csv(path + 'predictions_iter' + str(train_test_iter_num) + '.tsv', sep="\t")
 
 def result_prep(path, train_test_iter_count):
 
