@@ -53,22 +53,29 @@ def Logistic_Regresion(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwa
     print(lr_random.best_params_)
 
     print("\n P values for variables:\n")
-    cal_lr_p_vals(X=X_train_model_dt, y=y_train[user_input._output_col],
-                  params=np.append(lr_random.best_estimator_.intercept_, lr_random.best_estimator_.coef_),
-                  predictions=lr_random.best_estimator_.predict(X_train_model_dt))
-
+    try:
+        cal_lr_p_vals(X=X_train_model_dt, y=y_train[user_input._output_col],
+                      params=np.append(lr_random.best_estimator_.intercept_, lr_random.best_estimator_.coef_),
+                      predictions=lr_random.best_estimator_.predict(X_train_model_dt))
+    except:
+        print("P-value calculation failed!")
     print("\n#####################################################\n")
+
+    model_performance(X_test_model_dt=X_train_model_dt, y_test=y_train[user_input._output_col],
+                      model_name="Logistic_Regression", model_object=lr_random,
+                      output_path=user_input._output_dir + "Model_Result/", prob=True,
+                      train_test_iter_num=train_test_iter_num, ID=train_ID, train_set=True)
 
     model_performance(X_test_model_dt=X_test_model_dt, y_test=y_test[user_input._output_col],
                       model_name="Logistic_Regression", model_object=lr_random,
                       output_path=user_input._output_dir + "Model_Result/", prob=True,
-                      train_test_iter_num=train_test_iter_num, ID= test_ID)
+                      train_test_iter_num=train_test_iter_num, ID= test_ID, train_set= False)
 
     print("#######################################################\n")
 
 
-
 def SVM_Linear(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
+
     from sklearn.svm import SVC
 
     # get the tran test iteration number to store the results per iter
@@ -116,10 +123,15 @@ def SVM_Linear(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
 
     print("\n######################################################\n")
 
+    model_performance(X_test_model_dt=X_train_model_dt, y_test=y_train[user_input._output_col],
+                      model_name="SVM_Linear", model_object=svc_linear_random,
+                      output_path=user_input._output_dir + "Model_Result/", prob=False,
+                      train_test_iter_num=train_test_iter_num, ID=train_ID, train_set=True)
+
     model_performance(X_test_model_dt=X_test_model_dt, y_test=y_test[user_input._output_col],
                       model_name="SVM_Linear", model_object=svc_linear_random,
                       output_path=user_input._output_dir + "Model_Result/", prob=False,
-                      train_test_iter_num=train_test_iter_num, ID= test_ID)
+                      train_test_iter_num=train_test_iter_num, ID= test_ID, train_set= False)
 
     print("#######################################################\n")
 
@@ -172,10 +184,15 @@ def SVM_Kernel(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
 
     print("\n#######################################################\n")
 
+    model_performance(X_test_model_dt=X_train_model_dt, y_test=y_train[user_input._output_col],
+                      model_name="SVM_Kernel", model_object=svc_kernel_random,
+                      output_path=user_input._output_dir + "Model_Result/", prob=False,
+                      train_test_iter_num=train_test_iter_num, ID=train_ID, train_set=True)
+
     model_performance(X_test_model_dt=X_test_model_dt, y_test=y_test[user_input._output_col],
                       model_name="SVM_Kernel", model_object=svc_kernel_random,
                       output_path=user_input._output_dir + "Model_Result/", prob=False,
-                      train_test_iter_num=train_test_iter_num, ID= test_ID)
+                      train_test_iter_num=train_test_iter_num, ID= test_ID, train_set= False)
 
     print("##########################################################\n")
 
@@ -247,10 +264,15 @@ def Random_Forest(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
 
     print("\n#########################################################\n")
 
+    model_performance(X_test_model_dt=X_train_model_dt, y_test=y_train[user_input._output_col],
+                      model_name="Random_Forest", model_object=rf_random,
+                      output_path=user_input._output_dir + "Model_Result/", prob=True,
+                      train_test_iter_num=train_test_iter_num, ID=train_ID, train_set=True)
+
     model_performance(X_test_model_dt=X_test_model_dt, y_test=y_test[user_input._output_col],
                       model_name="Random_Forest", model_object=rf_random,
                       output_path=user_input._output_dir + "Model_Result/", prob=True,
-                      train_test_iter_num=train_test_iter_num, ID= test_ID)
+                      train_test_iter_num=train_test_iter_num, ID= test_ID, train_set= False)
 
     print("###########################################################\n")
 
@@ -326,10 +348,15 @@ def Xgboost(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
 
     print("\n#########################################################\n")
 
+    model_performance(X_test_model_dt=X_train_model_dt, y_test=y_train[user_input._output_col],
+                      model_name="XgBoost", model_object=XGBC_random,
+                      output_path=user_input._output_dir + "Model_Result/", prob=True,
+                      train_test_iter_num=train_test_iter_num, ID=train_ID, train_set=True)
+
     model_performance(X_test_model_dt=X_test_model_dt, y_test=y_test[user_input._output_col],
                       model_name="XgBoost", model_object=XGBC_random,
                       output_path=user_input._output_dir + "Model_Result/", prob=True,
-                      train_test_iter_num=train_test_iter_num, ID= test_ID)
+                      train_test_iter_num=train_test_iter_num, ID= test_ID, train_set=False)
 
     print("###########################################################\n")
 

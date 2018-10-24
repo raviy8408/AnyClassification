@@ -34,7 +34,7 @@ def test_train_splitter(df, y, cat_feature_list, int_feature_list, ID_col, outco
     from sklearn.model_selection import train_test_split
 
     X_train, X_test, y_train, y_test = train_test_split(df.drop([y], axis=1).values,
-                                                        df[y], test_size=0.2)
+                                                        df[y], test_size=1 - split_frac)
 
     # test train dataframe creation
     X_train_df = pd.DataFrame(data=X_train, columns=df.drop([y], axis=1).columns.values)
@@ -228,7 +228,15 @@ def model_performance(X_test_model_dt, y_test, model_name, model_object, output_
     else:
         ID = []
 
-    print("#################--Model Performance--#################\n")
+    if ('train_set' in kwargs.keys()):
+        train_set = kwargs.get("train_set")
+    else:
+        train_set = False
+
+    if train_set == True:
+        print("#########--Model Performance on Train Set--#########\n")
+    else:
+        print("##########--Model Performance on Test Set--#########\n")
 
     path = output_path + model_name + "/"
     if not os.path.isdir(path):
@@ -239,7 +247,7 @@ def model_performance(X_test_model_dt, y_test, model_name, model_object, output_
         plot_ROC(y_test=y_test,
                  y_pred_prob= model_object.best_estimator_.predict_proba(X_test_model_dt)[:, 1],
                  model_name= model_name,
-                 image_dir=path, train_test_iter_num = train_test_iter_num)
+                 image_dir=path, train_test_iter_num = train_test_iter_num, train_set = train_set)
         print("ROC plot saved to the drive!\n")
 
     y_pred = model_object.best_estimator_.predict(X_test_model_dt)
@@ -254,7 +262,7 @@ def model_performance(X_test_model_dt, y_test, model_name, model_object, output_
                     'kappa' : cohen_kappa_score(y_test, y_pred)
                     }
 
-    print("Model Performance on Test Set:\n")
+    # print("Model Performance on Test Set:\n")
     print("Accuracy:\n")
     print(str(_result_dict.get('accuracy')))
     print("\nConfusion Matrix:\n")
@@ -268,14 +276,23 @@ def model_performance(X_test_model_dt, y_test, model_name, model_object, output_
     print("Saving iteration result to drive..")
     if train_test_iter_num <=1:
         _result = pd.DataFrame(_result_dict, index=['iter' + str(train_test_iter_num)])
-        _result.to_csv(path + 'result.tsv', sep='\t')
+        if train_set == True:
+            _result.to_csv(path + 'result_train.tsv', sep='\t')
+        else:
+            _result.to_csv(path + 'result_test.tsv', sep='\t')
     else:
         _result = pd.DataFrame(_result_dict, index=['iter' + str(train_test_iter_num)])
-        appendDFToCSV_void(df=_result, csvFilePath=path + 'result.tsv', sep='\t')
+        if train_set == True:
+            appendDFToCSV_void(df=_result, csvFilePath=path + 'result_train.tsv', sep='\t')
+        else:
+            appendDFToCSV_void(df=_result, csvFilePath=path + 'result_test.tsv', sep='\t')
 
     ######################################################
-    print("Saving predictions to drive..")
-    path = output_path + model_name + "/prediction/"
+    print("Saving predictions to drive..\n")
+    if train_set == True:
+        path = output_path + model_name + "/prediction/Train_Set/"
+    else:
+        path = output_path + model_name + "/prediction/Test_Set/"
     if not os.path.isdir(path):
         os.makedirs(path)
 

@@ -122,7 +122,16 @@ def plot_ROC(y_test, y_pred_prob, model_name, image_dir, **kwargs):
     else:
         train_test_iter_num = 1
 
-    path = image_dir + "ROC/"
+    if ('train_set' in kwargs.keys()):
+        train_set = kwargs.get("train_set")
+    else:
+        train_set = False
+
+    if train_set == True:
+        path = image_dir + "ROC/Train_Set/"
+    else:
+        path = image_dir + "ROC/Test_Set/"
+
     if not os.path.isdir(path):
         os.makedirs(path)
 

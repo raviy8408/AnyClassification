@@ -81,26 +81,9 @@ print("#########################################################\n")
 ########################################################################
 scalar = StandardScaler().fit(_raw_data_imp_cols[_numeric_features])
 
-#########################################################################
-# test train split
-#########################################################################
-print("Splitting Test and Train Data...\n")
-# test_train_splitter(df, y, cat_feature_list, int_feature_list, outcome_type = 'category', split_frac = 0.8)
-X_train, y_train, X_test, y_test = test_train_splitter(df= _raw_data_imp_cols, y=user_input._output_col,
-                                                       cat_feature_list=user_input._categorical_features,
-                                                       int_feature_list=user_input._integer_features,
-                                                       ID_col=user_input._ID_col,
-                                                       split_frac=user_input.train_test_split_frac)
-print("Train Data Length:" + str(len(X_train)))
-print("\nTest Data Length:" + str(len(X_test)))
-print("\n#######################################################\n")
-
-#########################################################################
-
 # ###############################################################
-#                        model building                         #
+#                     Model Evaluation Framework                #
 # ###############################################################
-available_model_list = ["Logistic_Regression", "SVM_Linear", "SVM_Kernel",  "Random_Forest", "Xgboost"]
 
 # repeat the modeling building nd testing process for n iterations
 for iter in range(user_input.train_test_iter):
@@ -108,6 +91,27 @@ for iter in range(user_input.train_test_iter):
     print("**********************************************************\n")
     print("Iteration " + str(iter + 1) + " of model building and testing....\n")
     print("**********************************************************\n")
+
+    #########################################################################
+    # test train split
+    #########################################################################
+    print("Splitting Test and Train Data...\n")
+    # test_train_splitter(df, y, cat_feature_list, int_feature_list, outcome_type = 'category', split_frac = 0.8)
+    X_train, y_train, X_test, y_test = test_train_splitter(df= _raw_data_imp_cols, y=user_input._output_col,
+                                                           cat_feature_list=user_input._categorical_features,
+                                                           int_feature_list=user_input._integer_features,
+                                                           ID_col=user_input._ID_col,
+                                                           split_frac=user_input.train_test_split_frac)
+    print("Train Data Length:" + str(len(X_train)))
+    print("\nTest Data Length:" + str(len(X_test)))
+    print("\n#######################################################\n")
+
+    #########################################################################
+
+    # ###############################################################
+    #                        model building                         #
+    # ###############################################################
+    available_model_list = ["Logistic_Regression", "SVM_Linear", "SVM_Kernel",  "Random_Forest", "Xgboost"]
 
     # Loop for all the models provided in user input
     for model in user_input._model_list:
@@ -167,39 +171,51 @@ for iter in range(user_input.train_test_iter):
 
         if model == "Logistic_Regression":
 
-            Logistic_Regresion(X_train_model_dt = X_train_model_dt, y_train = y_train, X_test_model_dt = X_test_model_dt,
-                               y_test = y_test, train_test_iter_num=iter + 1, train_ID = train_ID, test_ID = test_ID)
+            try:
+                Logistic_Regresion(X_train_model_dt = X_train_model_dt, y_train = y_train, X_test_model_dt = X_test_model_dt,
+                                    y_test = y_test, train_test_iter_num=iter + 1, train_ID = train_ID, test_ID = test_ID)
+            except:
+                print(model + 'Failed!')
 
         ############################--SVM Linear--######################
 
         elif model == "SVM_Linear":
 
-            SVM_Linear(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
-                       y_test=y_test, train_test_iter_num=iter + 1)
-
+            try:
+                SVM_Linear(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
+                            y_test=y_test, train_test_iter_num=iter + 1, train_ID = train_ID, test_ID = test_ID)
+            except:
+                print(model + 'Failed!')
 
         ############################--SVM Kernel--######################
 
         elif model == "SVM_Kernel":
 
-            SVM_Kernel(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
-                               y_test=y_test, train_test_iter_num=iter + 1)
-
+            try:
+                SVM_Kernel(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
+                                y_test=y_test, train_test_iter_num=iter + 1, train_ID = train_ID, test_ID = test_ID)
+            except:
+                print(model + 'Failed!')
 
         #########################--Random Forest--#####################
 
         elif model == "Random_Forest":
 
-            Random_Forest(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
-                               y_test=y_test, train_test_iter_num=iter + 1)
-
+            try:
+                Random_Forest(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
+                                y_test=y_test, train_test_iter_num=iter + 1, train_ID = train_ID, test_ID = test_ID)
+            except:
+                print(model + 'Failed!')
 
         #########################-- XGBoost--#####################
 
         elif model == "Xgboost":
 
-            Xgboost(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
-                               y_test=y_test, train_test_iter_num=iter + 1)
+            try:
+                Xgboost(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
+                               y_test=y_test, train_test_iter_num=iter + 1, train_ID = train_ID, test_ID = test_ID)
+            except:
+                print(model + 'Failed!')
 
         # #########################--ANN --#####################
         #
@@ -217,9 +233,16 @@ print("Result for all train test iterations:\n")
 
 for model in user_input._model_list:
 
-    path = user_input._output_dir + "/Model_Result/" + model + "/result.tsv"
+    path = user_input._output_dir + "/Model_Result/" + model + "/result_train.tsv"
 
     print('\n' + model + ":\n")
+    print('Train Result:')
+    result_prep(path=path, train_test_iter_count=user_input.train_test_iter)
+
+    path = user_input._output_dir + "/Model_Result/" + model + "/result_test.tsv"
+
+    # print('\n' + model + ":\n")
+    print('\nTest Result:')
     result_prep(path=path, train_test_iter_count=user_input.train_test_iter)
 
 print("#######################################################\n")

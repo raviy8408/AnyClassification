@@ -1,4 +1,5 @@
 import numpy as np
+import time
 
 ############################################################################
 #                               User Input                                 #
@@ -6,7 +7,7 @@ import numpy as np
 
 _data_dir = "C://files/churn_test/data/"
 
-_output_dir = "C://files/churn_test/output/"
+_output_dir = "C://files/churn_test/output/" + "output_" + time.strftime("%Y%m%d-%H%M%S") + "/"
 
 _input_file_name = "Churn_Modelling.csv"
 
@@ -20,7 +21,7 @@ _integer_features = ["CreditScore", "Age", "Tenure", "NumOfProducts"]
 _output_col = "Exited"
 
 # Available models: Logistic_Regression, Random_Forest
-_model_list = ["Logistic_Regression", "SVM_Linear", "SVM_Kernel", "Random_Forest", "Xgboost"] # "Logistic_Regression", "SVM_Linear", "SVM_Kernel", "Random_Forest", "Xgboost"
+_model_list = ["Xgboost"] # "Logistic_Regression", "SVM_Linear", "SVM_Kernel", "Random_Forest", "Xgboost"
 
 # Printing level set
 verbose_high = False
@@ -87,16 +88,16 @@ XGB_max_delta_step=[0,1,2,4,6,8,10]
 #############################-- Train Test Parameters --############################
 
 # train test split fraction
-train_test_split_frac = 0.8
+train_test_split_frac = 0.9
 # no of test train iterations to run the modeling with different test set, to ensure that model is not over fitted
 train_test_iter = 3
 
 #############################-- CV Parameters --############################
 
 # Number of parameter settings that are sampled
-n_iter = 1
+n_iter = 500
 # cross validation fold
-cv = 5
+cv = 9
 # Integer value, higher the value more text is printed
 verbose = 1
 # model selection criteria
