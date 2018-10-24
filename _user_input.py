@@ -21,7 +21,7 @@ _integer_features = ["CreditScore", "Age", "Tenure", "NumOfProducts"]
 _output_col = "Exited"
 
 # Available models: Logistic_Regression, Random_Forest
-_model_list = ["Logistic_Regression", "Xgboost"] # "Logistic_Regression", "SVM_Linear", "SVM_Kernel", "Random_Forest", "Xgboost"
+_model_list = ["Logistic_Regression", "SVM_Linear", "SVM_Kernel", "Random_Forest", "Xgboost"] # "Logistic_Regression", "SVM_Linear", "SVM_Kernel", "Random_Forest", "Xgboost"
 
 # Printing level set
 verbose_high = False
