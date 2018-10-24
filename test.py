@@ -72,18 +72,18 @@
 # # print_categories(_binned_data, list(_binned_data))
 #
 #
-import pandas as pd
-
-df = pd.DataFrame(data={'a': [1,2,3],'b': [5,6,7]})
-
-t = []
-
-df[t] = df[t].astype(str)
-
-# df1 = df.drop('a', axis=1)
-test = df.drop([], axis=1)
-
-print(test)
+# import pandas as pd
+#
+# df = pd.DataFrame(data={'a': [1,2,3],'b': [5,6,7]})
+#
+# t = []
+#
+# df[t] = df[t].astype(str)
+#
+# # df1 = df.drop('a', axis=1)
+# test = df.drop([], axis=1)
+#
+# print(test)
 #
 # l = []
 #
@@ -99,3 +99,6 @@ print(test)
 
 # import numpy as np
 # print(np.logspace(-3, 3, 7))
+
+
+# print(len(set(list(['Random_Forest'])) - set(list(['Random_Forest','Xgboost']))))

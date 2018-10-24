@@ -4,6 +4,7 @@ import _user_input as user_input
 from _plot_func import *
 from _models import *
 from _support_func import *
+from _helper_func import *
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler
 import os
 import shutil
@@ -229,7 +230,7 @@ for iter in range(user_input.train_test_iter):
 #                       Result Preparation                      #
 # ###############################################################
 
-print("Result for all train test iterations:\n")
+print("########--Result for all train test iterations--#########\n")
 
 for model in user_input._model_list:
 
@@ -246,6 +247,30 @@ for model in user_input._model_list:
     result_prep(path=path, train_test_iter_count=user_input.train_test_iter)
 
 print("#######################################################\n")
+
+# ###############################################################
+#                       Feature Importance                      #
+# ###############################################################
+
+feature_imp_model_list = ['Random_Forest', 'Xgboost']
+
+if len(set(feature_imp_model_list) - set(user_input._model_list)) < len(feature_imp_model_list):
+
+    print("################--Feature Importance --################")
+
+    for model in user_input._model_list:
+        if model in feature_imp_model_list:
+
+            path = user_input._output_dir + "/Model_Result/" + model + "/Feature_Importance/feature_importance.tsv"
+
+            print('\n' + model + ":")
+            print("\nTop 10 Features:")
+
+            feature_imp_prep(path=path, train_test_iter_count=user_input.train_test_iter)
+
+    print("#######################################################\n")
+
+
 
 
 

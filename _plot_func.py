@@ -1,8 +1,11 @@
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.pylab import rcParams
+from _helper_func import *
 import os
 rcParams['figure.figsize'] = 15, 6
+
 
 def plot_num_value_hist(data, field, n_bin, dir_name):
     '''
@@ -152,6 +155,8 @@ def plot_ROC(y_test, y_pred_prob, model_name, image_dir, **kwargs):
 
 def plt_feature_imp(importances, feature_list, n_top_features, image_dir, **kwargs):
 
+    import pandas as pd
+
     # get the tran test iteration number to store the results per iter
     if ('train_test_iter_num' in kwargs.keys()):
         train_test_iter_num = kwargs.get("train_test_iter_num")
@@ -161,6 +166,10 @@ def plt_feature_imp(importances, feature_list, n_top_features, image_dir, **kwar
     path = image_dir + "Feature_Importance/"
     if not os.path.isdir(path):
         os.makedirs(path)
+
+    feature_imp_dict = dict(zip(feature_list, importances))
+    feature_imp_df = pd.DataFrame(feature_imp_dict, index= ['iter_' + str(train_test_iter_num)])
+    appendDFToCSV_void(feature_imp_df, path + 'feature_importance.tsv', sep='\t')
 
     # Sort feature importances in descending order
     indices = np.argsort(importances)[::-1]

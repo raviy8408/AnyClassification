@@ -21,7 +21,7 @@ _integer_features = ["CreditScore", "Age", "Tenure", "NumOfProducts"]
 _output_col = "Exited"
 
 # Available models: Logistic_Regression, Random_Forest
-_model_list = ["Xgboost"] # "Logistic_Regression", "SVM_Linear", "SVM_Kernel", "Random_Forest", "Xgboost"
+_model_list = ["Logistic_Regression", "Xgboost"] # "Logistic_Regression", "SVM_Linear", "SVM_Kernel", "Random_Forest", "Xgboost"
 
 # Printing level set
 verbose_high = False
@@ -95,9 +95,9 @@ train_test_iter = 3
 #############################-- CV Parameters --############################
 
 # Number of parameter settings that are sampled
-n_iter = 500
+n_iter = 1
 # cross validation fold
-cv = 9
+cv = 5
 # Integer value, higher the value more text is printed
 verbose = 1
 # model selection criteria

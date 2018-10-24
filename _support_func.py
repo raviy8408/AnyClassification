@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from _plot_func import *
+from _helper_func import *
 
 
 def print_categories(df, cols):
@@ -188,19 +189,9 @@ def cal_lr_p_vals(X, y, params, predictions):
 
     myDF3 = pd.DataFrame()
     myDF3["Coefficients"],myDF3["Standard Errors"],myDF3["t values"],myDF3["Probabilites"] = [params,sd_b,ts_b,p_values]
+    var_list = np.array(['Cons'] + list(X.columns.values))
+    myDF3.set_index(var_list, drop=True, inplace=True)
     print(myDF3)
-
-def appendDFToCSV_void(df, csvFilePath, sep=","):
-    import os
-    if not os.path.isfile(csvFilePath):
-        df.to_csv(csvFilePath, mode='a', index=True, sep=sep)
-    elif len(df.columns) != len(pd.read_csv(csvFilePath, nrows=1, sep=sep, index_col=0).columns):
-        raise Exception("Columns do not match!! Dataframe has " + str(len(df.columns)) + " columns. CSV file has " + str(len(pd.read_csv(csvFilePath, nrows=1, sep=sep).columns)) + " columns.")
-    elif not (df.columns == pd.read_csv(csvFilePath, nrows=1, sep=sep, index_col=0).columns).all():
-        raise Exception("Columns and column order of dataframe and csv file do not match!!")
-    else:
-        df.to_csv(csvFilePath, mode='a', index=True, sep=sep, header=False)
-
 
 def model_performance(X_test_model_dt, y_test, model_name, model_object, output_path, prob, **kwargs):
     """
@@ -244,8 +235,7 @@ def model_performance(X_test_model_dt, y_test, model_name, model_object, output_
 
     if prob == True:
         # Saving ROC plot to the drive
-        plot_ROC(y_test=y_test,
-                 y_pred_prob= model_object.best_estimator_.predict_proba(X_test_model_dt)[:, 1],
+        plot_ROC(y_test=y_test,y_pred_prob= model_object.best_estimator_.predict_proba(X_test_model_dt)[:, 1],
                  model_name= model_name,
                  image_dir=path, train_test_iter_num = train_test_iter_num, train_set = train_set)
         print("ROC plot saved to the drive!\n")
@@ -305,16 +295,6 @@ def model_performance(X_test_model_dt, y_test, model_name, model_object, output_
         pred_df = pd.DataFrame({'actual': y_test, 'pred': y_pred}, index=y_test.index)
         pred_df.to_csv(path + 'predictions_iter' + str(train_test_iter_num) + '.tsv', sep="\t")
 
-def result_prep(path, train_test_iter_count):
 
-    result = pd.read_csv(path, sep="\t", index_col=0)
-
-    result_final = result.T
-    result_final['avg'] = result_final.iloc[:, 0:train_test_iter_count].mean(axis=1)
-    result_final['std'] = result_final.iloc[:, 0:train_test_iter_count].std(axis=1)
-
-    print(result_final)
-
-    result_final.to_csv(path, sep="\t")
 
 
