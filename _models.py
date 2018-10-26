@@ -297,6 +297,7 @@ def Xgboost(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
         test_ID = []
 
     random_grid = {
+        'n_estimators' : user_input.XGB_n_estimators,
         'min_child_weight': user_input.XGB_min_child_weight,
         'gamma': user_input.XGB_gamma,
         'subsample': user_input.XGB_subsample,

@@ -102,3 +102,5 @@
 
 
 # print(len(set(list(['Random_Forest'])) - set(list(['Random_Forest','Xgboost']))))
+
+# print([int(x) for x in np.linspace(3, 10, num = 7)])
