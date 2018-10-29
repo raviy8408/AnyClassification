@@ -21,7 +21,7 @@ _integer_features = ["CreditScore", "Age", "Tenure", "NumOfProducts"]
 _output_col = "Exited"
 
 # Available models: Logistic_Regression, Random_Forest
-_model_list = ["Xgboost"] # "Logistic_Regression", "SVM_Linear", "SVM_Kernel", "Random_Forest", "Xgboost"
+_model_list = ["Random_Forest"] # "Logistic_Regression", "SVM_Linear", "SVM_Kernel", "Random_Forest", "Xgboost"
 
 # Printing level set
 verbose_high = False
@@ -49,40 +49,40 @@ kernel = ['rbf']
 ################-- Random Forest Grid Search Parameters --##################
 
 # Number of trees in random forest
-n_estimators = [int(x) for x in np.linspace(start = 20, stop = 200, num = 50)]
+n_estimators = [int(x) for x in np.linspace(start = 100, stop = 200, num = 6)]
 # Number of features to consider at every split
-max_features = ['auto', 'sqrt']
+max_features = ['sqrt']
 # Maximum number of levels in tree
-max_depth = [int(x) for x in np.linspace(4, 20, num = 15)]
+max_depth = [int(x) for x in np.linspace(9, 11, num = 3)]
 max_depth.append(None)
 # Minimum number of samples required to split a node
-min_samples_split = [2, 5, 10, 20]
+min_samples_split = [2, 3, 5]
 # Minimum number of samples required at each leaf node
-min_samples_leaf = [1, 2, 4, 6]
+min_samples_leaf = [1, 2]
 # Method of selecting samples for training each tree
-bootstrap = [True, False]
+bootstrap = [True] # [True, False]
 # Different sampling options to treat imbalanced data
 class_weight = ['balanced', 'balanced_subsample']
-class_weight.append(None)
+# class_weight.append(None)
 
 ################-- Xgboost Grid Search Parameters --########################
 
 # no of boosted tree to form
-XGB_n_estimators = [150] # [int(x) for x in np.linspace(start = 100, stop = 200, num = 5)]
+XGB_n_estimators = [125, 150] # [int(x) for x in np.linspace(start = 100, stop = 200, num = 5)]
 # minimum sum of weights of all observations required in a child
-XGB_min_child_weight = [5,8,10]
+XGB_min_child_weight = [3, 4]
 # gain at each leaf node should be more than gamma for the split to be made, no specific range depends on loss function
-XGB_gamma = [0.75, 1, 1.25] # 0.1,0.5,0.75, 1, 1.25, 1.5, 2, 5
+XGB_gamma = [0.025, 0.05] # 0.1,0.5,0.75, 1, 1.25, 1.5, 2, 5
 # fraction of data to be sampled for each tree building step, smaller value would avoid over-fitting
 XGB_subsample = [0.5, 0.6] # 0.5 - 1
 # fraction of columns to be randomly samples for each tree
 XGB_colsample_bytree = [0.5,0.6] # 0.5 -1
 # Maximum number of levels in tree
-XGB_max_depth = [int(x) for x in np.linspace(3, 6, num = 3)]
+XGB_max_depth = [4] #[int(x) for x in np.linspace(3, 6, num = 4)]
 # learning rate makes model more robust by shrinking the weights on each step
-XGB_learning_rate = [0.01,0.025,0.05] # default is 0.3, typical range 0.01 to 0.2
+XGB_learning_rate = [0.025] # default is 0.3, typical range 0.01 to 0.2
 # a value greater than 0 should be used for high class imbalance
-XGB_scale_pos_weight = [7,8] # default is 1
+XGB_scale_pos_weight = [2] # default is 1
 XGB_objective=['binary:logistic'] #'binary:logistic','reg:linear','reg:logistic','binary:hinge','binary:logitraw'
 # default is zero, generally not required, a positive value would help making update step more conservative
 XGB_max_delta_step=[0] # 0,1,2,4,6,8,10
@@ -98,16 +98,16 @@ XGB_max_delta_step=[0] # 0,1,2,4,6,8,10
 #############################-- Train Test Parameters --############################
 
 # train test split fraction
-train_test_split_frac = 0.9
+train_test_split_frac = 0.8
 # no of test train iterations to run the modeling with different test set, to ensure that model is not over fitted
 train_test_iter = 3
 
 #############################-- CV Parameters --############################
 
 # Number of parameter settings that are sampled
-n_iter = 100
+n_iter = 200
 # cross validation fold
-cv = 9
+cv = 5
 # Integer value, higher the value more text is printed
 verbose = 1
 # model selection criteria

@@ -97,10 +97,11 @@
 # a = np.array(list([[0],[1],[0]]))
 # print(a[:,0])
 
-# import numpy as np
+import numpy as np
 # print(np.logspace(-3, 3, 7))
 
+print([int(x) for x in np.linspace(5, 15, num = 3)])
 
 # print(len(set(list(['Random_Forest'])) - set(list(['Random_Forest','Xgboost']))))
 
-# print([int(x) for x in np.linspace(3, 10, num = 7)])
+# print([int(x) for x in np.linspace(6, 10, num = 4)])

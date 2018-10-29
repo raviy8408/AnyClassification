@@ -173,7 +173,7 @@ for iter in range(user_input.train_test_iter):
         if model == "Logistic_Regression":
 
             try:
-                Logistic_Regresion(X_train_model_dt = X_train_model_dt, y_train = y_train, X_test_model_dt = X_test_model_dt,
+                Logistic_Regression(X_train_model_dt = X_train_model_dt, y_train = y_train, X_test_model_dt = X_test_model_dt,
                                     y_test = y_test, train_test_iter_num=iter + 1, train_ID = train_ID, test_ID = test_ID)
             except:
                 print(model + 'Failed!')

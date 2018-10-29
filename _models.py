@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 
 
-def Logistic_Regresion(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
+def Logistic_Regression(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
     from sklearn.linear_model import LogisticRegression
 
     # get the tran test iteration number to store the results per iter
@@ -51,6 +51,17 @@ def Logistic_Regresion(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwa
     print(lr_random.best_score_)
     print("\nBest Model Parameter Set for Highest " + user_input.scoring + ":")
     print(lr_random.best_params_)
+
+    #####################################
+    print("\nSaving param to drive:")
+    path = user_input._output_dir + "Model_Result/" + "Logistic_Regression/"
+    if not os.path.isdir(path):
+        os.makedirs(path)
+    _param_dict = lr_random.best_params_
+    _param_dict[user_input.scoring] = lr_random.best_score_
+    _param = pd.DataFrame(_param_dict, index=['iter' + str(train_test_iter_num)])
+    appendDFToCSV_void(df=_param, csvFilePath=path + 'cv_param.tsv', sep='\t')
+    #####################################
 
     print("\n P values for variables:\n")
     try:
@@ -121,6 +132,17 @@ def SVM_Linear(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
     print("\nBest Model Parameter Set for Highest " + user_input.scoring + ":")
     print(svc_linear_random.best_params_)
 
+    ######################################
+    print("\nSaving param to drive:")
+    path = user_input._output_dir + "Model_Result/" + "SVM_Linear/"
+    if not os.path.isdir(path):
+        os.makedirs(path)
+    _param_dict = svc_linear_random.best_params_
+    _param_dict[user_input.scoring] = svc_linear_random.best_score_
+    _param = pd.DataFrame(_param_dict, index=['iter' + str(train_test_iter_num)])
+    appendDFToCSV_void(df=_param, csvFilePath=path + 'cv_param.tsv', sep='\t')
+    ######################################
+
     print("\n######################################################\n")
 
     model_performance(X_test_model_dt=X_train_model_dt, y_test=y_train[user_input._output_col],
@@ -181,6 +203,18 @@ def SVM_Kernel(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
     print(svc_kernel_random.best_score_)
     print("\nBest Model Parameter Set for Highest " + user_input.scoring + ":")
     print(svc_kernel_random.best_params_)
+
+    ######################################
+    print("\nSaving param to drive:")
+    path = user_input._output_dir + "Model_Result/" + "SVM_Kernel/"
+    if not os.path.isdir(path):
+        os.makedirs(path)
+
+    _param_dict = svc_kernel_random.best_params_
+    _param_dict[user_input.scoring] = svc_kernel_random.best_score_
+    _param = pd.DataFrame(_param_dict, index=['iter' + str(train_test_iter_num)])
+    appendDFToCSV_void(df=_param, csvFilePath=path + 'cv_param.tsv', sep='\t')
+    ######################################
 
     print("\n#######################################################\n")
 
@@ -252,11 +286,19 @@ def Random_Forest(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
     print("\nBest Model Parameter Set for Highest " + user_input.scoring + ":")
     print(rf_random.best_params_)
 
-    importances = rf_random.best_estimator_.feature_importances_
-
+    ######################################
+    print("\nSaving param to drive:")
     path = user_input._output_dir + "Model_Result/" + "Random_Forest/"
     if not os.path.isdir(path):
         os.makedirs(path)
+
+    _param_dict = rf_random.best_params_
+    _param_dict[user_input.scoring] = rf_random.best_score_
+    _param = pd.DataFrame(_param_dict, index=['iter' + str(train_test_iter_num)])
+    appendDFToCSV_void(df=_param, csvFilePath=path + 'cv_param.tsv', sep='\t')
+    ######################################
+
+    importances = rf_random.best_estimator_.feature_importances_
 
     plt_feature_imp(importances=importances, feature_list=X_train_model_dt.columns.values,
                     n_top_features=min(len(X_train_model_dt.columns.values), 30),
@@ -336,6 +378,18 @@ def Xgboost(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
     print(XGBC_random.best_score_)
     print("\nBest Model Parameter Set for Highest " + user_input.scoring + ":")
     print(XGBC_random.best_params_)
+
+    ######################################
+    print("\nSaving param to drive:")
+    path = user_input._output_dir + "Model_Result/" + "XgBoost/"
+    if not os.path.isdir(path):
+        os.makedirs(path)
+
+    _param_dict = XGBC_random.best_params_
+    _param_dict[user_input.scoring] = XGBC_random.best_score_
+    _param = pd.DataFrame(_param_dict, index=['iter' + str(train_test_iter_num)])
+    appendDFToCSV_void(df=_param, csvFilePath=path + 'cv_param.tsv', sep='\t')
+    ######################################
 
     importances = XGBC_random.best_estimator_.feature_importances_
 
