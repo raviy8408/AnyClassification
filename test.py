@@ -100,7 +100,7 @@
 import numpy as np
 # print(np.logspace(-3, 3, 7))
 
-print([int(x) for x in np.linspace(5, 15, num = 3)])
+print([int(x) for x in np.linspace(6, 9, num = 3)])
 
 # print(len(set(list(['Random_Forest'])) - set(list(['Random_Forest','Xgboost']))))
 

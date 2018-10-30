@@ -21,7 +21,7 @@ _integer_features = ["CreditScore", "Age", "Tenure", "NumOfProducts"]
 _output_col = "Exited"
 
 # Available models: Logistic_Regression, Random_Forest
-_model_list = ["Random_Forest"] # "Logistic_Regression", "SVM_Linear", "SVM_Kernel", "Random_Forest", "Xgboost"
+_model_list = ["Xgboost"] # "Logistic_Regression", "SVM_Linear", "SVM_Kernel", "Random_Forest", "Xgboost"
 
 # Printing level set
 verbose_high = False
@@ -49,20 +49,20 @@ kernel = ['rbf']
 ################-- Random Forest Grid Search Parameters --##################
 
 # Number of trees in random forest
-n_estimators = [int(x) for x in np.linspace(start = 100, stop = 200, num = 6)]
+n_estimators = [int(x) for x in np.linspace(start = 200, stop = 240, num = 3)]
 # Number of features to consider at every split
 max_features = ['sqrt']
 # Maximum number of levels in tree
-max_depth = [int(x) for x in np.linspace(9, 11, num = 3)]
-max_depth.append(None)
+max_depth = [int(x) for x in np.linspace(9, 10, num = 2)]
+# max_depth.append(None)
 # Minimum number of samples required to split a node
-min_samples_split = [2, 3, 5]
+min_samples_split = [8, 10]
 # Minimum number of samples required at each leaf node
-min_samples_leaf = [1, 2]
+min_samples_leaf = [2]
 # Method of selecting samples for training each tree
 bootstrap = [True] # [True, False]
 # Different sampling options to treat imbalanced data
-class_weight = ['balanced', 'balanced_subsample']
+class_weight = ['balanced'] # ['balanced', 'balanced_subsample']
 # class_weight.append(None)
 
 ################-- Xgboost Grid Search Parameters --########################
@@ -105,11 +105,11 @@ train_test_iter = 3
 #############################-- CV Parameters --############################
 
 # Number of parameter settings that are sampled
-n_iter = 200
+n_iter = 12
 # cross validation fold
 cv = 5
 # Integer value, higher the value more text is printed
-verbose = 1
+verbose = 3
 # model selection criteria
 # choose from ‘accuracy’, ‘average_precision’,‘f1’, ‘f1_micro’, ‘f1_macro’, ‘f1_weighted’, ‘f1_samples’,‘neg_log_loss’,
 # ‘precision’ etc., ‘recall’ etc., roc_auc’
