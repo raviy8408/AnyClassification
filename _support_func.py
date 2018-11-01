@@ -241,7 +241,10 @@ def model_performance(X_test_model_dt, y_test, model_name, model_object, output_
                  image_dir=path, train_test_iter_num = train_test_iter_num, train_set = train_set)
         print("ROC plot saved to the drive!\n")
 
-    y_pred = model_object.best_estimator_.predict(X_test_model_dt)
+    if model_name == 'ANN':
+        y_pred = model_object.best_estimator_.predict(X_test_model_dt)[:,0]
+    else:
+        y_pred = model_object.best_estimator_.predict(X_test_model_dt)
 
     _result_dict = {'accuracy' : accuracy_score(y_true=y_test, y_pred=y_pred),
                     'label_1_recall' : recall_score(y_true=y_test, y_pred=y_pred, pos_label=1),

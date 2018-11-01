@@ -112,7 +112,7 @@ for iter in range(user_input.train_test_iter):
     # ###############################################################
     #                        model building                         #
     # ###############################################################
-    available_model_list = ["Logistic_Regression", "SVM_Linear", "SVM_Kernel",  "Random_Forest", "Xgboost"]
+    available_model_list = ["Logistic_Regression", "SVM_Linear", "SVM_Kernel",  "Random_Forest", "Xgboost", "ANN"]
 
     # Loop for all the models provided in user input
     for model in user_input._model_list:
@@ -122,7 +122,7 @@ for iter in range(user_input.train_test_iter):
         print("#######################################################\n")
 
         if model in available_model_list:
-            if model in ["Logistic_Regression", "svm_linear", "svm_kernel"]:
+            if model in ["Logistic_Regression", "svm_linear", "svm_kernel", "ANN"]:
                 # in one hot encoding drop the last dummy variable column to avoid multi-collinearity
                 X_train[_numeric_features] = scalar.transform(X_train[_numeric_features])
                 X_test[_numeric_features] = scalar.transform(X_test[_numeric_features])
@@ -172,11 +172,11 @@ for iter in range(user_input.train_test_iter):
 
         if model == "Logistic_Regression":
 
-            try:
-                Logistic_Regression(X_train_model_dt = X_train_model_dt, y_train = y_train, X_test_model_dt = X_test_model_dt,
+            # try:
+            Logistic_Regression(X_train_model_dt = X_train_model_dt, y_train = y_train, X_test_model_dt = X_test_model_dt,
                                     y_test = y_test, train_test_iter_num=iter + 1, train_ID = train_ID, test_ID = test_ID)
-            except:
-                print(model + 'Failed!')
+            # except:
+            #     print(model + 'Failed!')
 
         ############################--SVM Linear--######################
 
@@ -218,12 +218,58 @@ for iter in range(user_input.train_test_iter):
             except:
                 print(model + 'Failed!')
 
-        # #########################--ANN --#####################
-        #
-        # elif model == "ANN":
-        #
-        #     ANN(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
-        #                        y_test=y_test)
+        #########################--ANN --#####################
+
+        elif model == "ANN":
+
+            import tensorflow as tf
+
+            def as_keras_metric(method):
+                import functools
+                from keras import backend as K
+                @functools.wraps(method)
+                def wrapper(self, args, **kwargs):
+                    """ Wrapper for turning tensorflow metrics into keras metrics """
+                    value, update_op = method(self, args, **kwargs)
+                    K.get_session().run(tf.local_variables_initializer())
+                    with tf.control_dependencies([update_op]):
+                        value = tf.identity(value)
+                    return value
+
+                return wrapper
+
+
+            auc_roc = as_keras_metric(tf.metrics.auc)
+            recall = as_keras_metric(tf.metrics.recall)
+
+            def create_model(optimizer='rmsprop', init= 'glorot_uniform', activation='relu', hidden_layers=1,
+                             neurons = 8, lr = 0.01, weight_constraint = 1, momentum = 0.2, dropout_rate = 0.5):
+                from keras import models
+                from keras import layers
+                from keras import backend
+
+                lr = lr
+                weight_constraint = weight_constraint
+                momentum = momentum
+                dropout_rate = dropout_rate
+
+                # create model
+                model = models.Sequential()
+                model.add(layers.Dense(neurons, input_dim=X_train_model_dt.shape[1], kernel_initializer=init, activation=activation))
+
+                for i in range(hidden_layers):
+                    #   Add one hidden layer
+                    model.add(layers.Dense(neurons, kernel_initializer=init, activation=activation))
+
+                model.add(layers.Dense(1, kernel_initializer=init, activation='sigmoid'))
+
+                # Compile model
+                model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=[auc_roc])
+                return model
+
+            ANN(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
+                               y_test=y_test, model_def = create_model, train_test_iter_num=iter + 1,
+                train_ID = train_ID, test_ID = test_ID)
 
 
 # ###############################################################

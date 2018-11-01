@@ -21,7 +21,7 @@ _integer_features = ["CreditScore", "Age", "Tenure", "NumOfProducts"]
 _output_col = "Exited"
 
 # Available models: Logistic_Regression, Random_Forest
-_model_list = ["Xgboost"] # "Logistic_Regression", "SVM_Linear", "SVM_Kernel", "Random_Forest", "Xgboost"
+_model_list = ["ANN"] # "Logistic_Regression", "SVM_Linear", "SVM_Kernel", "Random_Forest", "Xgboost", "ANN"
 
 # Printing level set
 verbose_high = False
@@ -87,13 +87,19 @@ XGB_objective=['binary:logistic'] #'binary:logistic','reg:linear','reg:logistic'
 # default is zero, generally not required, a positive value would help making update step more conservative
 XGB_max_delta_step=[0] # 0,1,2,4,6,8,10
 
-# ################-- ANN Grid Search Parameters --########################
-#
-# NN_epochs = [1, 2]
-# NN_batches = [100, 1000]
-# NN_optimizers = ['rmsprop', 'adam']
-# NN_activation = ['relu', 'sigmoid']
-# NN_hidden_layers = [1, 2]
+################-- ANN Grid Search Parameters --########################
+
+NN_epochs = [1500]
+NN_batches = [8000]
+NN_optimizers = ['RMSprop'] # 'rmsprop', 'adam', 'SGD', 'adagrad', 'adadelta', 'adamax', 'nadam'
+NN_activation = ['tanh'] # 'relu', 'sigmoid', 'tanh', 'hard_sigmoid', 'linear'
+NN_hidden_layers = [5, 10, 30] #
+NN_neurons = [8, 16] #
+NN_momentum = [0, 0.5, 0.9] # 0.0, 0.2, 0.4, 0.6, 0.8, 0.9
+NN_learn_rate = [0.001] # 0.01 to 0.3
+NN_dropout_rate = [0, 0.5, 0.9] # 0.0 to 0.9
+NN_weight_constraint = [0.5, 1, 5]  # 1 to 5
+NN_init = ['glorot_uniform'] # 'uniform', 'lecun_uniform', 'normal', 'zero', 'glorot_normal', 'glorot_uniform', 'he_normal', 'he_uniform
 
 #############################-- Train Test Parameters --############################
 
@@ -105,11 +111,11 @@ train_test_iter = 3
 #############################-- CV Parameters --############################
 
 # Number of parameter settings that are sampled
-n_iter = 12
+n_iter = 500
 # cross validation fold
 cv = 5
 # Integer value, higher the value more text is printed
-verbose = 3
+verbose = 1
 # model selection criteria
 # choose from ‘accuracy’, ‘average_precision’,‘f1’, ‘f1_micro’, ‘f1_macro’, ‘f1_weighted’, ‘f1_samples’,‘neg_log_loss’,
 # ‘precision’ etc., ‘recall’ etc., roc_auc’
