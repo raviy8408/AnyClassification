@@ -172,11 +172,11 @@ for iter in range(user_input.train_test_iter):
 
         if model == "Logistic_Regression":
 
-            # try:
-            Logistic_Regression(X_train_model_dt = X_train_model_dt, y_train = y_train, X_test_model_dt = X_test_model_dt,
+            try:
+                Logistic_Regression(X_train_model_dt = X_train_model_dt, y_train = y_train, X_test_model_dt = X_test_model_dt,
                                     y_test = y_test, train_test_iter_num=iter + 1, train_ID = train_ID, test_ID = test_ID)
-            # except:
-            #     print(model + 'Failed!')
+            except:
+                print(model + 'Failed!')
 
         ############################--SVM Linear--######################
 
@@ -246,6 +246,9 @@ for iter in range(user_input.train_test_iter):
                              neurons = 8, lr = 0.01, weight_constraint = 1, momentum = 0.2, dropout_rate = 0.5):
                 from keras import models
                 from keras import layers
+                from keras.layers import Dropout
+                from keras import optimizers
+                from keras.constraints import maxnorm
                 from keras import backend
 
                 lr = lr
@@ -255,16 +258,39 @@ for iter in range(user_input.train_test_iter):
 
                 # create model
                 model = models.Sequential()
-                model.add(layers.Dense(neurons, input_dim=X_train_model_dt.shape[1], kernel_initializer=init, activation=activation))
+                model.add(layers.Dense(neurons, input_dim=X_train_model_dt.shape[1], kernel_initializer=init,
+                                       activation=activation, kernel_constraint=maxnorm(weight_constraint)))
+                model.add(Dropout(dropout_rate))
 
                 for i in range(hidden_layers):
                     #   Add one hidden layer
-                    model.add(layers.Dense(neurons, kernel_initializer=init, activation=activation))
+                    model.add(layers.Dense(neurons, kernel_initializer=init, activation=activation,
+                                           kernel_constraint=maxnorm(weight_constraint)))
+                    model.add(Dropout(dropout_rate))
 
-                model.add(layers.Dense(1, kernel_initializer=init, activation='sigmoid'))
+                model.add(layers.Dense(1, kernel_initializer=init, activation='sigmoid',
+                                        kernel_constraint=maxnorm(weight_constraint)))
+
+                # optimizer 'rmsprop', 'adam', 'sgd', 'adagrad', 'adadelta', 'adamax', 'nadam'
+                if optimizer == 'rmsprop':
+                    optimizer_func = optimizers.RMSprop(lr=lr)
+                elif optimizer == 'adam':
+                    optimizer_func = optimizers.Adam(lr=lr)
+                elif optimizer == 'sgd':
+                    optimizer_func = optimizers.SGD(lr=lr, momentum = momentum)
+                elif optimizer == 'adagrad':
+                    optimizer_func = optimizers.Adagrad(lr=lr)
+                elif optimizer == 'adadelta':
+                    optimizer_func = optimizers.Adadelta(lr=lr)
+                elif optimizer == 'adamax':
+                    optimizer_func = optimizers.Adamax(lr=lr)
+                elif optimizer == 'nadam':
+                    optimizer_func = optimizers.Nadam(lr=lr)
+                else:
+                    optimizer_func = 'rmsprop'
 
                 # Compile model
-                model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=[auc_roc])
+                model.compile(loss='binary_crossentropy', optimizer=optimizer_func, metrics=[auc_roc])
                 return model
 
             ANN(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
