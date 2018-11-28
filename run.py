@@ -222,6 +222,7 @@ for iter in range(user_input.train_test_iter):
 
         elif model == "ANN":
 
+        # try:
             import tensorflow as tf
 
             def as_keras_metric(method):
@@ -243,7 +244,7 @@ for iter in range(user_input.train_test_iter):
             recall = as_keras_metric(tf.metrics.recall)
 
             def create_model(optimizer='rmsprop', init= 'glorot_uniform', activation='relu', hidden_layers=1,
-                             neurons = 8, lr = 0.01, weight_constraint = 1, momentum = 0.2, dropout_rate = 0.5):
+                             neurons = 8, lr = 0.01, weight_constraint = 1, momentum = 0.2, dropout_rate = 0.5, decay = 0.0):
                 from keras import models
                 from keras import layers
                 from keras.layers import Dropout
@@ -275,7 +276,7 @@ for iter in range(user_input.train_test_iter):
                 if optimizer == 'rmsprop':
                     optimizer_func = optimizers.RMSprop(lr=lr)
                 elif optimizer == 'adam':
-                    optimizer_func = optimizers.Adam(lr=lr)
+                    optimizer_func = optimizers.Adam(lr=lr, decay= decay)
                 elif optimizer == 'sgd':
                     optimizer_func = optimizers.SGD(lr=lr, momentum = momentum)
                 elif optimizer == 'adagrad':
@@ -296,6 +297,8 @@ for iter in range(user_input.train_test_iter):
             ANN(X_train_model_dt=X_train_model_dt, y_train=y_train, X_test_model_dt=X_test_model_dt,
                                y_test=y_test, model_def = create_model, train_test_iter_num=iter + 1,
                 train_ID = train_ID, test_ID = test_ID)
+            # except:
+            #     print(model + 'Failed!')
 
 
 # ###############################################################

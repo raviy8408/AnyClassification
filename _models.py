@@ -454,6 +454,21 @@ def Xgboost(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
 #     model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
 #     return model
 #
+def create_class_weight(labels_dict,mu=0.15):
+    import  math
+
+    total = sum(labels_dict.values())
+    keys = labels_dict.keys()
+    # print(total)
+    class_weight = dict()
+
+    for key in keys:
+        # print(float(labels_dict[key]))
+        score = math.log(mu*total/(float(labels_dict[key])))
+        class_weight[key] = score if score > 1.0 else 1.0
+
+    return class_weight
+
 def ANN(X_train_model_dt, y_train, X_test_model_dt, y_test, model_def, **kwargs):
 
     from keras.wrappers.scikit_learn import KerasClassifier
@@ -486,7 +501,8 @@ def ANN(X_train_model_dt, y_train, X_test_model_dt, y_test, model_def, **kwargs)
         'weight_constraint' : user_input.NN_weight_constraint,
         'momentum' : user_input.NN_momentum,
         'hidden_layers': user_input.NN_hidden_layers,
-        'neurons' : user_input.NN_neurons
+        'neurons' : user_input.NN_neurons,
+        'decay' : user_input.NN_decay
     }
 
     # length of exhaustive set of parameter combination
@@ -496,9 +512,19 @@ def ANN(X_train_model_dt, y_train, X_test_model_dt, y_test, model_def, **kwargs)
 
     # Use the random grid to search for best hyperparameters
     # First create the base model to tune
-    class_weights = class_weight.compute_class_weight('balanced', np.unique(y_train[user_input._output_col]),
-                                                      y_train[user_input._output_col])
-    class_weight_dict = dict(enumerate(class_weights))
+    # class_weights = class_weight.compute_class_weight('balanced', np.unique(y_train[user_input._output_col]),
+    #                                                   y_train[user_input._output_col])
+    # class_weight_dict = dict(enumerate(class_weights))
+
+    labels_dict = y_train.groupby([user_input._output_col])[user_input._output_col].count().to_dict()
+
+    print("\nOutcome label count in train set:")
+    print(labels_dict)
+
+    class_weight_dict = create_class_weight(labels_dict, mu= user_input.NN_weight_factor)
+
+    print("\nWeight given to the classes:")
+    print(class_weight_dict)
     # print(class_weight_dict)
     annc = KerasClassifier(build_fn=model_def, verbose = 0, class_weight = class_weight_dict)
 
@@ -510,7 +536,7 @@ def ANN(X_train_model_dt, y_train, X_test_model_dt, y_test, model_def, **kwargs)
                                      random_state=42, scoring=user_input.scoring)
 
     # Fit the random search model
-    print(str(user_input.cv) + "-Fold CV in Progress...")
+    print("\n" + str(user_input.cv) + "-Fold CV in Progress...")
     annc_random.fit(X_train_model_dt, y_train[user_input._output_col])
 
     print("###################--CV Result--########################\n")

@@ -89,29 +89,35 @@ XGB_max_delta_step=[0] # 0,1,2,4,6,8,10
 
 ################-- ANN Grid Search Parameters --########################
 
-NN_epochs = [2000]
-NN_batches = [200]
-NN_optimizers = ['rmsprop'] # 'rmsprop', 'adam', 'sgd', 'adagrad', 'adadelta', 'adamax', 'nadam'
-NN_activation = ['tanh'] # 'relu', 'sigmoid', 'tanh', 'hard_sigmoid', 'linear'
+NN_weight_factor = 1.0
+NN_epochs = [250]
+NN_batches = [512]
+NN_optimizers = ['adam'] # 'rmsprop', 'adam', 'sgd', 'adagrad', 'adadelta', 'adamax', 'nadam'
+NN_activation = ['relu'] # 'relu', 'sigmoid', 'tanh', 'hard_sigmoid', 'linear'
 NN_hidden_layers = [5] #
-NN_neurons = [8] #
-NN_momentum = [0.2] # 0.0, 0.2, 0.4, 0.6, 0.8, 0.9
-NN_learn_rate = [0.001] # 0.01 to 0.3
+NN_neurons = [12] #
+NN_learn_rate = [0.01] # 0.01 to 0.3
 NN_dropout_rate = [0.2] # 0.0 to 0.9
-NN_weight_constraint = [3]  # 1 to 5
-NN_init = ['glorot_uniform'] # 'uniform', 'lecun_uniform', 'normal', 'zero', 'glorot_normal', 'glorot_uniform', 'he_normal', 'he_uniform
+NN_weight_constraint = [1]  # 1 to 5
+NN_init = ['he_normal'] # 'uniform', 'lecun_uniform', 'normal', 'zero', 'glorot_normal', 'glorot_uniform', 'he_normal', 'he_uniform
 
-#############################-- Train Test Parameters --############################
+# Optimizer specific parameters
+# SGD
+NN_momentum = [0.9] # 0.0, 0.2, 0.4, 0.6, 0.8, 0.9
+# Adam
+NN_decay = [0] # 0.0, 0.1, 0.01
+
+############################-- Train Test Parameters --###################
 
 # train test split fraction
 train_test_split_frac = 0.8
 # no of test train iterations to run the modeling with different test set, to ensure that model is not over fitted
 train_test_iter = 3
 
-#############################-- CV Parameters --############################
+#############################-- CV Parameters --###########################
 
 # Number of parameter settings that are sampled
-n_iter = 1
+n_iter = 500
 # cross validation fold
 cv = 5
 # Integer value, higher the value more text is printed
