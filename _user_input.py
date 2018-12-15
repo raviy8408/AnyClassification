@@ -117,7 +117,7 @@ train_test_iter = 3
 #############################-- CV Parameters --###########################
 
 # Number of parameter settings that are sampled
-n_iter = 500
+n_iter = 2
 # cross validation fold
 cv = 5
 # Integer value, higher the value more text is printed

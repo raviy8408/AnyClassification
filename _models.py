@@ -39,7 +39,7 @@ def Logistic_Regression(X_train_model_dt, y_train, X_test_model_dt, y_test, **kw
     lr_random = RandomizedSearchCV(estimator=logreg, param_distributions=random_grid,
                                    n_iter=min(user_input.n_iter, max_n_iter),
                                    cv=user_input.cv, verbose=user_input.verbose,
-                                   random_state=42, scoring=user_input.scoring)
+                                   random_state=42, scoring=user_input.scoring, n_jobs=-1)
 
     # Fit the random search model
     print(str(user_input.cv) + "-Fold CV in Progress...")
@@ -119,7 +119,7 @@ def SVM_Linear(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
     svc_linear_random = RandomizedSearchCV(estimator=svc_linear, param_distributions=random_grid,
                                            n_iter=min(user_input.n_iter, max_n_iter),
                                            cv=user_input.cv, verbose=user_input.verbose,
-                                           random_state=42, scoring=user_input.scoring)
+                                           random_state=42, scoring=user_input.scoring, n_jobs=-1)
 
     # Fit the random search model
     print(str(user_input.cv) + "-Fold CV in Progress...")
@@ -191,7 +191,7 @@ def SVM_Kernel(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
     svc_kernel_random = RandomizedSearchCV(estimator=svc_kernel, param_distributions=random_grid,
                                            n_iter=min(user_input.n_iter, max_n_iter),
                                            cv=user_input.cv, verbose=user_input.verbose,
-                                           random_state=42, scoring=user_input.scoring)
+                                           random_state=42, scoring=user_input.scoring, n_jobs=-1)
 
     # Fit the random search model
     print(str(user_input.cv) + "-Fold CV in Progress...")
@@ -273,7 +273,7 @@ def Random_Forest(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
     rf_random = RandomizedSearchCV(estimator=rf, param_distributions=random_grid,
                                    n_iter=min(user_input.n_iter, max_n_iter), cv=user_input.cv,
                                    verbose=user_input.verbose,
-                                   random_state=42, scoring=user_input.scoring)
+                                   random_state=42, scoring=user_input.scoring, n_jobs=-1)
 
     # Fit the random search model
     print(str(user_input.cv) + "-Fold CV in Progress...")
@@ -366,7 +366,7 @@ def Xgboost(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
     XGBC_random = RandomizedSearchCV(estimator=XGBC, param_distributions=random_grid,
                                      n_iter=min(user_input.n_iter, max_n_iter), cv=user_input.cv,
                                      verbose=user_input.verbose,
-                                     random_state=42, scoring=user_input.scoring)
+                                     random_state=42, scoring=user_input.scoring, n_jobs=-1)
 
     # Fit the random search model
     print(str(user_input.cv) + "-Fold CV in Progress...")
@@ -454,6 +454,78 @@ def Xgboost(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
 #     model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
 #     return model
 #
+import tensorflow as tf
+
+def as_keras_metric(method):
+    import functools
+    from keras import backend as K
+    @functools.wraps(method)
+    def wrapper(self, args, **kwargs):
+        """ Wrapper for turning tensorflow metrics into keras metrics """
+        value, update_op = method(self, args, **kwargs)
+        K.get_session().run(tf.local_variables_initializer())
+        with tf.control_dependencies([update_op]):
+            value = tf.identity(value)
+        return value
+
+    return wrapper
+
+
+auc_roc = as_keras_metric(tf.metrics.auc)
+recall = as_keras_metric(tf.metrics.recall)
+
+def create_model(optimizer='rmsprop', init= 'glorot_uniform', activation='relu', hidden_layers=1,
+             neurons = 8, lr = 0.01, weight_constraint = 1, momentum = 0.2, dropout_rate = 0.5, decay = 0.0):
+    from keras import models
+    from keras import layers
+    from keras.layers import Dropout
+    from keras import optimizers
+    from keras.constraints import maxnorm
+    from keras import backend
+
+    lr = lr
+    weight_constraint = weight_constraint
+    momentum = momentum
+    dropout_rate = dropout_rate
+
+    # create model
+    model = models.Sequential()
+    model.add(layers.Dense(neurons, input_dim=11, kernel_initializer=init,
+                           activation=activation, kernel_constraint=maxnorm(weight_constraint)))
+    model.add(Dropout(dropout_rate))
+
+    for i in range(hidden_layers):
+        #   Add one hidden layer
+        model.add(layers.Dense(neurons, kernel_initializer=init, activation=activation,
+                               kernel_constraint=maxnorm(weight_constraint)))
+        model.add(Dropout(dropout_rate))
+
+    model.add(layers.Dense(1, kernel_initializer=init, activation='sigmoid',
+                            kernel_constraint=maxnorm(weight_constraint)))
+
+    # optimizer 'rmsprop', 'adam', 'sgd', 'adagrad', 'adadelta', 'adamax', 'nadam'
+    if optimizer == 'rmsprop':
+        optimizer_func = optimizers.RMSprop(lr=lr)
+    elif optimizer == 'adam':
+        optimizer_func = optimizers.Adam(lr=lr, decay= decay)
+    elif optimizer == 'sgd':
+        optimizer_func = optimizers.SGD(lr=lr, momentum = momentum)
+    elif optimizer == 'adagrad':
+        optimizer_func = optimizers.Adagrad(lr=lr)
+    elif optimizer == 'adadelta':
+        optimizer_func = optimizers.Adadelta(lr=lr)
+    elif optimizer == 'adamax':
+        optimizer_func = optimizers.Adamax(lr=lr)
+    elif optimizer == 'nadam':
+        optimizer_func = optimizers.Nadam(lr=lr)
+    else:
+        optimizer_func = 'rmsprop'
+
+    # Compile model
+    model.compile(loss='binary_crossentropy', optimizer=optimizer_func, metrics=[auc_roc])
+    return model
+
+
 def create_class_weight(labels_dict,mu=0.15):
     import  math
 
@@ -533,7 +605,7 @@ def ANN(X_train_model_dt, y_train, X_test_model_dt, y_test, model_def, **kwargs)
     annc_random = RandomizedSearchCV(estimator=annc, param_distributions=random_grid,
                                      n_iter=min(user_input.n_iter, max_n_iter), cv=user_input.cv,
                                      verbose=user_input.verbose,
-                                     random_state=42, scoring=user_input.scoring)
+                                     random_state=42, scoring=user_input.scoring, n_jobs=-1)
 
     # Fit the random search model
     print("\n" + str(user_input.cv) + "-Fold CV in Progress...")
