@@ -95,9 +95,9 @@ NN_batches = [512]
 NN_optimizers = ['adam'] # 'rmsprop', 'adam', 'sgd', 'adagrad', 'adadelta', 'adamax', 'nadam'
 NN_activation = ['relu'] # 'relu', 'sigmoid', 'tanh', 'hard_sigmoid', 'linear'
 NN_hidden_layers = [5] #
-NN_neurons = [12] #
+NN_neurons = [11] #
 NN_learn_rate = [0.01] # 0.01 to 0.3
-NN_dropout_rate = [0.2] # 0.0 to 0.9
+NN_dropout_rate = [0.2, 0.15] # 0.0 to 0.9
 NN_weight_constraint = [1]  # 1 to 5
 NN_init = ['he_normal'] # 'uniform', 'lecun_uniform', 'normal', 'zero', 'glorot_normal', 'glorot_uniform', 'he_normal', 'he_uniform
 

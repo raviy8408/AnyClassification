@@ -415,115 +415,83 @@ def Xgboost(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
 
     print("###########################################################\n")
 
-# def create_ann_model(optimizer='adam', activation = 'sigmoid'):
-#
-#     from keras import models
-#     from keras import layers
-#
-#     # Initialize the constructor
-#     model = models.Sequential()
-#     # Add an input layer
-#     model.add(layers.Dense(8, activation=activation, input_shape=(12,)))
-#
-#     # for i in range(hidden_layers):
-#     #   Add one hidden layer
-#     model.add(layers.Dense(8, activation=activation))
-#
-#     # Add an output layer
-#     model.add(layers.Dense(1, activation='sigmoid'))
-#     #compile model
-#     model.compile(loss= 'binary_crossentropy', optimizer= optimizer, metrics= ["accuracy"])
-#     return model
 
-# def create_model(optimizer='rmsprop', init='glorot_uniform', activation = 'relu', hidden_layers = 1):
-#     from keras import models
-#     from keras import layers
-#     from keras import backend
-#
-#     # create model
-#     model = models.Sequential()
-#     model.add(layers.Dense(8, input_dim=None, kernel_initializer=init, activation= activation))
-#
-#     for i in range(hidden_layers):
-#         #   Add one hidden layer
-#         model.add(layers.Dense(8, kernel_initializer=init, activation= activation))
-#
-#     model.add(layers.Dense(1, kernel_initializer=init, activation='sigmoid'))
-#
-#     # Compile model
-#     model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
-#     return model
-#
-import tensorflow as tf
+class keras_create_model(object):
 
-def as_keras_metric(method):
-    import functools
-    from keras import backend as K
-    @functools.wraps(method)
-    def wrapper(self, args, **kwargs):
-        """ Wrapper for turning tensorflow metrics into keras metrics """
-        value, update_op = method(self, args, **kwargs)
-        K.get_session().run(tf.local_variables_initializer())
-        with tf.control_dependencies([update_op]):
-            value = tf.identity(value)
-        return value
-
-    return wrapper
+    def input_dim_calc(self, input_dim):
+        self.input_dim = input_dim
 
 
-auc_roc = as_keras_metric(tf.metrics.auc)
-recall = as_keras_metric(tf.metrics.recall)
+    def as_keras_metric(self, method):
+        import tensorflow as tf
+        import functools
+        from keras import backend as K
+        @functools.wraps(method)
+        def wrapper(self, args, **kwargs):
+            """ Wrapper for turning tensorflow metrics into keras metrics """
+            value, update_op = method(self, args, **kwargs)
+            K.get_session().run(tf.local_variables_initializer())
+            with tf.control_dependencies([update_op]):
+                value = tf.identity(value)
+            return value
 
-def create_model(optimizer='rmsprop', init= 'glorot_uniform', activation='relu', hidden_layers=1,
-             neurons = 8, lr = 0.01, weight_constraint = 1, momentum = 0.2, dropout_rate = 0.5, decay = 0.0):
-    from keras import models
-    from keras import layers
-    from keras.layers import Dropout
-    from keras import optimizers
-    from keras.constraints import maxnorm
-    from keras import backend
+        return wrapper
 
-    lr = lr
-    weight_constraint = weight_constraint
-    momentum = momentum
-    dropout_rate = dropout_rate
 
-    # create model
-    model = models.Sequential()
-    model.add(layers.Dense(neurons, input_dim=11, kernel_initializer=init,
-                           activation=activation, kernel_constraint=maxnorm(weight_constraint)))
-    model.add(Dropout(dropout_rate))
+    def create_model(self, optimizer='rmsprop', init= 'glorot_uniform', activation='relu', hidden_layers=1,
+                 neurons = 8, lr = 0.01, weight_constraint = 1, momentum = 0.2, dropout_rate = 0.5, decay = 0.0):
+        import tensorflow as tf
+        from keras import models
+        from keras import layers
+        from keras.layers import Dropout
+        from keras import optimizers
+        from keras.constraints import maxnorm
+        from keras import backend
 
-    for i in range(hidden_layers):
-        #   Add one hidden layer
-        model.add(layers.Dense(neurons, kernel_initializer=init, activation=activation,
-                               kernel_constraint=maxnorm(weight_constraint)))
+        lr = lr
+        weight_constraint = weight_constraint
+        momentum = momentum
+        dropout_rate = dropout_rate
+
+        auc_roc = self.as_keras_metric(tf.metrics.auc)
+        recall = self.as_keras_metric(tf.metrics.recall)
+
+        # create model
+        model = models.Sequential()
+        model.add(layers.Dense(neurons, input_dim=self.input_dim, kernel_initializer=init,
+                               activation=activation, kernel_constraint=maxnorm(weight_constraint)))
         model.add(Dropout(dropout_rate))
 
-    model.add(layers.Dense(1, kernel_initializer=init, activation='sigmoid',
-                            kernel_constraint=maxnorm(weight_constraint)))
+        for i in range(hidden_layers):
+            #   Add one hidden layer
+            model.add(layers.Dense(neurons, kernel_initializer=init, activation=activation,
+                                   kernel_constraint=maxnorm(weight_constraint)))
+            model.add(Dropout(dropout_rate))
 
-    # optimizer 'rmsprop', 'adam', 'sgd', 'adagrad', 'adadelta', 'adamax', 'nadam'
-    if optimizer == 'rmsprop':
-        optimizer_func = optimizers.RMSprop(lr=lr)
-    elif optimizer == 'adam':
-        optimizer_func = optimizers.Adam(lr=lr, decay= decay)
-    elif optimizer == 'sgd':
-        optimizer_func = optimizers.SGD(lr=lr, momentum = momentum)
-    elif optimizer == 'adagrad':
-        optimizer_func = optimizers.Adagrad(lr=lr)
-    elif optimizer == 'adadelta':
-        optimizer_func = optimizers.Adadelta(lr=lr)
-    elif optimizer == 'adamax':
-        optimizer_func = optimizers.Adamax(lr=lr)
-    elif optimizer == 'nadam':
-        optimizer_func = optimizers.Nadam(lr=lr)
-    else:
-        optimizer_func = 'rmsprop'
+        model.add(layers.Dense(1, kernel_initializer=init, activation='sigmoid',
+                                kernel_constraint=maxnorm(weight_constraint)))
 
-    # Compile model
-    model.compile(loss='binary_crossentropy', optimizer=optimizer_func, metrics=[auc_roc])
-    return model
+        # optimizer 'rmsprop', 'adam', 'sgd', 'adagrad', 'adadelta', 'adamax', 'nadam'
+        if optimizer == 'rmsprop':
+            optimizer_func = optimizers.RMSprop(lr=lr)
+        elif optimizer == 'adam':
+            optimizer_func = optimizers.Adam(lr=lr, decay= decay)
+        elif optimizer == 'sgd':
+            optimizer_func = optimizers.SGD(lr=lr, momentum = momentum)
+        elif optimizer == 'adagrad':
+            optimizer_func = optimizers.Adagrad(lr=lr)
+        elif optimizer == 'adadelta':
+            optimizer_func = optimizers.Adadelta(lr=lr)
+        elif optimizer == 'adamax':
+            optimizer_func = optimizers.Adamax(lr=lr)
+        elif optimizer == 'nadam':
+            optimizer_func = optimizers.Nadam(lr=lr)
+        else:
+            optimizer_func = 'rmsprop'
+
+        # Compile model
+        model.compile(loss='binary_crossentropy', optimizer=optimizer_func, metrics=[auc_roc])
+        return model
 
 
 def create_class_weight(labels_dict,mu=0.15):
