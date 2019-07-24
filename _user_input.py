@@ -21,10 +21,21 @@ _integer_features = ["CreditScore", "Age", "Tenure", "NumOfProducts"]
 _output_col = "Exited"
 
 # Available models: Logistic_Regression, Random_Forest
-_model_list = ["ANN"] # "Logistic_Regression", "SVM_Linear", "SVM_Kernel", "Random_Forest", "Xgboost", "ANN"
+_model_list = ["Xgboost"] # "Logistic_Regression", "SVM_Linear", "SVM_Kernel", "Random_Forest", "Xgboost", "ANN"
 
 # Printing level set
 verbose_high = False
+
+################-- Data Balancing --############
+
+data_balancing = True
+balancing_method = "smote-nc"
+
+###-- smote-nc params--###
+# sampling strategy is the ratio of minority class count after resampling and majority class count actual
+sampling_strategy_smotenc = 1
+k_neighbors_smotenc = 5
+n_jobs_smotenc = -1
 
 ################-- Logistic Regression Grid Search Parameters --############
 
@@ -97,7 +108,7 @@ NN_activation = ['relu'] # 'relu', 'sigmoid', 'tanh', 'hard_sigmoid', 'linear'
 NN_hidden_layers = [5] #
 NN_neurons = [11] #
 NN_learn_rate = [0.01] # 0.01 to 0.3
-NN_dropout_rate = [0.2, 0.15] # 0.0 to 0.9
+NN_dropout_rate = [0.15] # 0.0 to 0.9
 NN_weight_constraint = [1]  # 1 to 5
 NN_init = ['he_normal'] # 'uniform', 'lecun_uniform', 'normal', 'zero', 'glorot_normal', 'glorot_uniform', 'he_normal', 'he_uniform
 
@@ -124,7 +135,7 @@ cv = 5
 verbose = 1
 # model selection criteria
 # choose from ‘accuracy’, ‘average_precision’,‘f1’, ‘f1_micro’, ‘f1_macro’, ‘f1_weighted’, ‘f1_samples’,‘neg_log_loss’,
-# ‘precision’ etc., ‘recall’ etc., roc_auc’
+# ‘precision’, ‘recall’, roc_auc’
 scoring = 'roc_auc'
 
 ############################################################################

@@ -381,7 +381,7 @@ def Xgboost(X_train_model_dt, y_train, X_test_model_dt, y_test, **kwargs):
 
     ######################################
     print("\nSaving param to drive:")
-    path = user_input._output_dir + "Model_Result/" + "XgBoost/"
+    path = user_input._output_dir + "Model_Result/" + "Xgboost/"
     if not os.path.isdir(path):
         os.makedirs(path)
 

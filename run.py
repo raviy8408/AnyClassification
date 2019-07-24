@@ -104,8 +104,13 @@ if __name__ == '__main__':
                                                                cat_feature_list=user_input._categorical_features,
                                                                int_feature_list=user_input._integer_features,
                                                                ID_col=user_input._ID_col,
-                                                               split_frac=user_input.train_test_split_frac)
-        print("Train Data Length:" + str(len(X_train)))
+                                                               split_frac=user_input.train_test_split_frac,
+                                                               data_balancing= user_input.data_balancing,
+                                                               balancing_method = user_input.balancing_method,
+                                                               balancing_params = {'sampling_strategy':user_input.sampling_strategy_smotenc,
+                                                                                   'k_neighbors': user_input.k_neighbors_smotenc,
+                                                                                   'n_jobs': user_input.n_jobs_smotenc})
+        print("\nTrain Data Length:" + str(len(X_train)))
         print("\nTest Data Length:" + str(len(X_test)))
         print("\n#######################################################\n")
 
@@ -141,12 +146,12 @@ if __name__ == '__main__':
             if user_input._categorical_features:
                 print("Performing One Hot Encoding of Categorical Variables...\n")
 
-                X_train_labelEncoded, X_test_labelEncoded = labelEncoder_cat_features(X_train=X_train, X_test=X_test,
-                                                                                      cat_feature_list=user_input._categorical_features,
-                                                                                      ID_col=user_input._ID_col)
+                # X_train_labelEncoded, X_test_labelEncoded = labelEncoder_cat_features(X_train=X_train, X_test=X_test,
+                #                                                                       cat_feature_list=user_input._categorical_features,
+                #                                                                       ID_col=user_input._ID_col)
 
-                X_train_oneHotEncoded, X_test_oneHotEncoded = oneHotEncoder_cat_features(X_train_labelEncoded=X_train_labelEncoded,
-                                                                                         X_test_labelEncoded=X_test_labelEncoded,
+                X_train_oneHotEncoded, X_test_oneHotEncoded = oneHotEncoder_cat_features(X_train_labelEncoded=X_train,
+                                                                                         X_test_labelEncoded=X_test,
                                                                                          cat_feature_list=user_input._categorical_features,
                                                                                          drop_last=drop_last_col)
                 # assigning final train and test X data if one hot encoding is done
@@ -163,7 +168,7 @@ if __name__ == '__main__':
                 X_test_model_dt = X_test.drop(user_input._ID_col, axis =1)
 
             if user_input.verbose_high == True:
-                print("Sample Model Input Data:\n")
+                print("Model Input Data Head:\n")
                 print(X_train_model_dt.head())
                 print("\nColumn Types of Final Data:")
                 print(X_train_model_dt.dtypes)

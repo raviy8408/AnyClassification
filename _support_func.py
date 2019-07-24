@@ -24,23 +24,48 @@ def column_index(df, query_cols):
     return sidx[np.searchsorted(cols, query_cols, sorter=sidx)]
 
 
-def test_train_splitter(df, y, cat_feature_list, int_feature_list, ID_col, outcome_type='category', split_frac=0.8):
+def test_train_splitter(df, y, cat_feature_list, int_feature_list, ID_col, outcome_type='category',split_frac=0.8,
+                        data_balancing = False, balancing_method = "smote-nc",
+                        balancing_params = {'sampling_strategy': 'minority','k_neighbors': 5,'n_jobs': -1}):
     '''
     Splits the data into test and train in the ration provided and returns 4 data frames:
     x_train, y_train, x_test, y_test
     :param df: complete data
     :param y: outcome variable
     :param cat_feature_list: all the categorical variables
+    :param data_balancing: True/False
+    :param balancing_method: over sampling method used
     :return: x_train, y_train, x_test, y_test
     '''
     from sklearn.model_selection import train_test_split
+    from imblearn.over_sampling import SMOTENC
+    from collections import Counter
 
     X_train, X_test, y_train, y_test = train_test_split(df.drop([y], axis=1).values,
                                                         df[y], test_size=1 - split_frac)
 
+    if (data_balancing == True) & (balancing_method == "smote-nc"):
+        smote_nc = SMOTENC(categorical_features=[df.drop([y], axis=1).columns.get_loc(c) for c
+                                                 in cat_feature_list if c in df.drop([y], axis=1)],
+                           random_state=0, sampling_strategy= balancing_params.get('sampling_strategy'),
+                           k_neighbors= balancing_params.get('k_neighbors'),
+                           n_jobs= balancing_params.get('n_jobs'))
+        X_resampled, y_resampled = smote_nc.fit_resample(X_train, y_train)
+        X_train_final = X_resampled
+        y_train_final = y_resampled
+
+        print("Class distribution before balancing:")
+        print(dict(Counter(y_train)))
+        print("Class distribution after balancing:")
+        print(dict(Counter(y_train_final)))
+
+    else:
+        X_train_final = X_train
+        y_train_final = y_train
+
     # test train dataframe creation
-    X_train_df = pd.DataFrame(data=X_train, columns=df.drop([y], axis=1).columns.values)
-    y_train_df = pd.DataFrame(data=y_train, columns=[y])
+    X_train_df = pd.DataFrame(data=X_train_final, columns=df.drop([y], axis=1).columns.values)
+    y_train_df = pd.DataFrame(data=y_train_final, columns=[y])
 
     X_test_df = pd.DataFrame(data=X_test, columns=df.drop([y], axis=1).columns.values)
     y_test_df = pd.DataFrame(data=y_test, columns=[y])
