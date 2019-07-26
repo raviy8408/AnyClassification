@@ -566,7 +566,7 @@ def ANN(X_train_model_dt, y_train, X_test_model_dt, y_test, model_def, **kwargs)
     print("\nWeight given to the classes:")
     print(class_weight_dict)
     # print(class_weight_dict)
-    annc = KerasClassifier(build_fn=model_def, verbose = 0, class_weight = class_weight_dict)
+    annc = KerasClassifier(build_fn=model_def, verbose = 0)
 
     # Random search of parameters, using n fold cross validation,
     # search across 100 different combinations, and use all available cores
@@ -577,7 +577,7 @@ def ANN(X_train_model_dt, y_train, X_test_model_dt, y_test, model_def, **kwargs)
 
     # Fit the random search model
     print("\n" + str(user_input.cv) + "-Fold CV in Progress...")
-    annc_random.fit(X_train_model_dt, y_train[user_input._output_col])
+    annc_random.fit(X_train_model_dt, y_train[user_input._output_col], class_weight = class_weight_dict)
 
     print("###################--CV Result--########################\n")
 
