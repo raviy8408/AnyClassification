@@ -16,6 +16,7 @@ _redundant_cols = ["RowNumber", "Surname"]
 _ID_col = ["CustomerId"]
 
 _categorical_features = ["Geography", "Gender", "HasCrCard", "IsActiveMember"]
+
 _integer_features = ["CreditScore", "Age", "Tenure", "NumOfProducts"]
 
 _output_col = "Exited"
@@ -33,7 +34,7 @@ balancing_method = "smote-nc"
 
 ###-- smote-nc params--###
 # sampling strategy is the ratio of minority class count after resampling and majority class count actual
-sampling_strategy_smotenc = 1
+sampling_strategy_smotenc = 0.5
 k_neighbors_smotenc = 5
 n_jobs_smotenc = -1
 
@@ -79,7 +80,7 @@ class_weight = ['balanced'] # ['balanced', 'balanced_subsample']
 ################-- Xgboost Grid Search Parameters --########################
 
 # no of boosted tree to form
-XGB_n_estimators = [125, 150] # [int(x) for x in np.linspace(start = 100, stop = 200, num = 5)]
+XGB_n_estimators = [125, 150, 200] # [int(x) for x in np.linspace(start = 100, stop = 200, num = 5)]
 # minimum sum of weights of all observations required in a child
 XGB_min_child_weight = [3, 4]
 # gain at each leaf node should be more than gamma for the split to be made, no specific range depends on loss function
@@ -93,10 +94,10 @@ XGB_max_depth = [4] #[int(x) for x in np.linspace(3, 6, num = 4)]
 # learning rate makes model more robust by shrinking the weights on each step
 XGB_learning_rate = [0.025] # default is 0.3, typical range 0.01 to 0.2
 # a value greater than 0 should be used for high class imbalance
-XGB_scale_pos_weight = [2] # default is 1
+XGB_scale_pos_weight = [1, 2] # default is 1
 XGB_objective=['binary:logistic'] #'binary:logistic','reg:linear','reg:logistic','binary:hinge','binary:logitraw'
 # default is zero, generally not required, a positive value would help making update step more conservative
-XGB_max_delta_step=[0] # 0,1,2,4,6,8,10
+XGB_max_delta_step=[0, 1] # 0,1,2,4,6,8,10
 
 ################-- ANN Grid Search Parameters --########################
 
@@ -136,7 +137,7 @@ verbose = 1
 # model selection criteria
 # choose from ‘accuracy’, ‘average_precision’,‘f1’, ‘f1_micro’, ‘f1_macro’, ‘f1_weighted’, ‘f1_samples’,‘neg_log_loss’,
 # ‘precision’, ‘recall’, roc_auc’
-scoring = 'roc_auc'
+scoring = 'f1_weighted'
 
 ############################################################################
 

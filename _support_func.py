@@ -38,19 +38,27 @@ def test_train_splitter(df, y, cat_feature_list, int_feature_list, ID_col, outco
     :return: x_train, y_train, x_test, y_test
     '''
     from sklearn.model_selection import train_test_split
-    from imblearn.over_sampling import SMOTENC
+    from imblearn.over_sampling import SMOTENC, SMOTE
     from collections import Counter
 
     X_train, X_test, y_train, y_test = train_test_split(df.drop([y], axis=1).values,
                                                         df[y], test_size=1 - split_frac)
 
     if (data_balancing == True) & (balancing_method == "smote-nc"):
-        smote_nc = SMOTENC(categorical_features=[df.drop([y], axis=1).columns.get_loc(c) for c
-                                                 in cat_feature_list if c in df.drop([y], axis=1)],
-                           random_state=0, sampling_strategy= balancing_params.get('sampling_strategy'),
-                           k_neighbors= balancing_params.get('k_neighbors'),
-                           n_jobs= balancing_params.get('n_jobs'))
-        X_resampled, y_resampled = smote_nc.fit_resample(X_train, y_train)
+        if cat_feature_list:
+            cat_col_index = [df.drop([y], axis=1).columns.get_loc(c) for c
+                                                 in cat_feature_list if c in df.drop([y], axis=1)]
+            smote_nc = SMOTENC(categorical_features=cat_col_index,
+                               random_state=0, sampling_strategy=balancing_params.get('sampling_strategy'),
+                               k_neighbors=balancing_params.get('k_neighbors'),
+                               n_jobs=balancing_params.get('n_jobs'))
+            X_resampled, y_resampled = smote_nc.fit_resample(X_train, y_train)
+        else:
+            smote = SMOTE(random_state=0, sampling_strategy=balancing_params.get('sampling_strategy'),
+                               k_neighbors=balancing_params.get('k_neighbors'),
+                               n_jobs=balancing_params.get('n_jobs'))
+            X_resampled, y_resampled = smote.fit_resample(X_train, y_train)
+
         X_train_final = X_resampled
         y_train_final = y_resampled
 
